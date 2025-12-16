@@ -102,7 +102,11 @@ function App() {
       >
         <div className="p-6 border-b border-slate-700">
           <div className="flex items-center gap-2">
-            <Cookie className="w-8 h-8 text-primary-500" />
+            <img
+              src="/cookies.png"
+              alt="Logo"
+              className="w-8 h-8 object-contain"
+            />
             <div>
               <h1 className="text-xl font-bold text-slate-100">
                 Cookie Pricing
