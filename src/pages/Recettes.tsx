@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useStore } from "@/store";
 import { Plus, Edit2, Trash2, Cookie } from "lucide-react";
 import { formaterEuro } from "@/utils/calculs";
-import type {
-  Recette,
-  IngredientRecette,
-  NiveauRecette,
-  UniteAchat,
-} from "@/types";
+import type { Recette, IngredientRecette, NiveauRecette } from "@/types";
 
 export default function Recettes() {
   const {

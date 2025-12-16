@@ -24,7 +24,6 @@ import {
   calculerRecetteComplete,
   calculerCoutEmballageParCookie,
   calculerTotalCharges,
-  calculerChargeParCookie,
   calculerFormatVenteComplet,
 } from "@/utils/calculs";
 

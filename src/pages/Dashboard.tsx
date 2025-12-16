@@ -3,7 +3,6 @@ import { formaterEuro, formaterPourcentage } from "@/utils/calculs";
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
   Package,
   Cookie,
   ShoppingCart,
@@ -28,7 +27,6 @@ export default function Dashboard() {
     ingredients,
     recettes,
     formatsVente,
-    emballages,
     charges,
     pertes,
     alertes,
@@ -45,9 +43,9 @@ export default function Dashboard() {
   const totalFormats = formatsVente.filter((f) => f.actif).length;
 
   // Calculs de rentabilité
-  const formatsRentables = formatsVente.filter(
-    (f) => f.profit_unitaire > 0
-  ).length;
+  // const formatsRentables = formatsVente.filter(
+  //   (f) => f.profit_unitaire > 0
+  // ).length;
   const margeMoyenne =
     formatsVente.length > 0
       ? formatsVente.reduce((acc, f) => acc + f.marge_reelle_pourcentage, 0) /
@@ -304,7 +302,9 @@ export default function Dashboard() {
                   />
                   <YAxis />
                   <Tooltip
-                    formatter={(value: number) => `${value.toFixed(1)}%`}
+                    formatter={(value: number | undefined) =>
+                      value ? `${value.toFixed(1)}%` : ""
+                    }
                   />
                   <Bar
                     dataKey="marge_reelle_pourcentage"
@@ -332,7 +332,7 @@ export default function Dashboard() {
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                      `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
@@ -345,7 +345,11 @@ export default function Dashboard() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => formaterEuro(value)} />
+                  <Tooltip
+                    formatter={(value: number | undefined) =>
+                      value ? formaterEuro(value) : ""
+                    }
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>

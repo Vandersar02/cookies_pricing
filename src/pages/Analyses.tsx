@@ -348,7 +348,9 @@ export default function Analyses() {
                       }}
                     />
                     <Tooltip
-                      formatter={(value: number) => `${value.toFixed(1)}%`}
+                      formatter={(value: number | undefined) =>
+                        value ? `${value.toFixed(1)}%` : ""
+                      }
                       labelStyle={{ color: "#000" }}
                     />
                     <Bar
@@ -384,7 +386,9 @@ export default function Analyses() {
                       }}
                     />
                     <Tooltip
-                      formatter={(value: number) => formaterEuro(value)}
+                      formatter={(value: number | undefined) =>
+                        value ? formaterEuro(value) : ""
+                      }
                       labelStyle={{ color: "#000" }}
                     />
                     <Legend />
@@ -441,7 +445,7 @@ export default function Analyses() {
                         cy="50%"
                         labelLine={false}
                         label={({ name, percent }) =>
-                          `${name} ${(percent * 100).toFixed(0)}%`
+                          `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
                         }
                         outerRadius={100}
                         fill="#8884d8"
@@ -473,7 +477,9 @@ export default function Analyses() {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value: number) => formaterEuro(value)}
+                        formatter={(value: number | undefined) =>
+                          value ? formaterEuro(value) : ""
+                        }
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -503,7 +509,9 @@ export default function Analyses() {
                       }}
                     />
                     <Tooltip
-                      formatter={(value: number) => formaterEuro(value)}
+                      formatter={(value: number | undefined) =>
+                        value ? formaterEuro(value) : ""
+                      }
                       labelStyle={{ color: "#000" }}
                     />
                     <Line
