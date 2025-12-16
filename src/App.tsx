@@ -108,9 +108,7 @@ function App() {
               className="w-8 h-8 object-contain"
             />
             <div>
-              <h1 className="text-xl font-bold text-slate-100">
-                Cookie Pricing
-              </h1>
+              <h1 className="text-xl font-bold text-slate-100">Tamy Cookies</h1>
               <p className="text-xs text-slate-400">Calcul des coûts</p>
             </div>
           </div>
