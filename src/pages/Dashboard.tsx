@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   // Calculs de rentabilité
   const formatsRentables = formatsVente.filter(
-    (f) => f.profit_unitaire > 0
+    (f) => f.profit_unitaire != null && f.profit_unitaire > 0
   ).length;
   const tauxRentabilite = formatsVente.length > 0 
     ? (formatsRentables / formatsVente.length) * 100 
@@ -76,8 +76,9 @@ export default function Dashboard() {
 
   // Alertes de stock
   const ingredientsStockFaible = ingredients.filter(
-    (i) => i.actif && i.quantite_stock !== undefined && 
-    i.stock_minimum !== undefined && 
+    (i) => i.actif && 
+    i.quantite_stock != null && 
+    i.stock_minimum != null && 
     i.quantite_stock <= i.stock_minimum
   );
 
@@ -505,7 +506,7 @@ export default function Dashboard() {
                         cy="50%"
                         labelLine={false}
                         label={({ name, percent }) =>
-                          `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                          `${name} ${percent ? (percent * 100).toFixed(1) : 0}%`
                         }
                         outerRadius={80}
                         fill="#8884d8"
