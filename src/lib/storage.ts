@@ -3,7 +3,7 @@
  * Permet de sauvegarder localement ET en ligne pour synchronisation multi-appareils
  */
 
-import { StateStorage } from 'zustand/middleware';
+import { PersistStorage } from 'zustand/middleware';
 import { databaseService } from './database-service';
 
 // Clé pour le localStorage
@@ -18,12 +18,12 @@ const SAVE_DEBOUNCE_MS = 2000; // 2 secondes
  * - Sauvegarde immédiate en localStorage (rapide)
  * - Sauvegarde différée sur Supabase (sync multi-appareils)
  */
-export const hybridStorage: StateStorage = {
+export const hybridStorage: PersistStorage<Record<string, unknown>> = {
   /**
    * Récupérer les données
    * Priorité: Supabase si connecté, sinon localStorage
    */
-  getItem: async (name: string): Promise<string | null> => {
+  getItem: async (name: string): Promise<Record<string, unknown> | null> => {
     try {
       // Toujours charger depuis localStorage en premier (rapide)
       const localData = localStorage.getItem(name);
@@ -44,20 +44,20 @@ export const hybridStorage: StateStorage = {
             // Si les données cloud sont plus récentes ou si pas de données locales
             if (!localState || shouldUseCloudData(localState, cloudState)) {
               // Sauvegarder en local pour accès rapide
-              const cloudDataStr = JSON.stringify(cloudData);
-              localStorage.setItem(name, cloudDataStr);
-              return cloudDataStr;
+              localStorage.setItem(name, JSON.stringify(cloudData));
+              return cloudData; // Retourner l'objet parsé directement
             }
           }
         }
       }
       
-      // Retourner les données locales
-      return localData;
+      // Retourner les données locales parsées
+      return localData ? JSON.parse(localData) : null;
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
       // En cas d'erreur, utiliser localStorage
-      return localStorage.getItem(name);
+      const localData = localStorage.getItem(name);
+      return localData ? JSON.parse(localData) : null;
     }
   },
 
@@ -66,10 +66,10 @@ export const hybridStorage: StateStorage = {
    * - Immédiat en localStorage
    * - Différé sur Supabase (debounced)
    */
-  setItem: async (name: string, value: string): Promise<void> => {
+  setItem: async (name: string, value: Record<string, unknown>): Promise<void> => {
     try {
       // 1. Sauvegarde immédiate en localStorage
-      localStorage.setItem(name, value);
+      localStorage.setItem(name, JSON.stringify(value));
       
       // 2. Sauvegarde différée sur Supabase si configuré
       if (databaseService.isConfigured()) {
@@ -83,8 +83,7 @@ export const hybridStorage: StateStorage = {
           try {
             const user = await databaseService.getCurrentUser();
             if (user) {
-              const data = JSON.parse(value);
-              await databaseService.saveData(user.id, data);
+              await databaseService.saveData(user.id, value);
             }
           } catch (error) {
             console.error('Erreur lors de la sauvegarde cloud:', error);
@@ -114,7 +113,7 @@ export const hybridStorage: StateStorage = {
  * Déterminer si on doit utiliser les données cloud
  * Basé sur la date de dernière modification
  */
-function shouldUseCloudData(localState: any, cloudState: any): boolean {
+function shouldUseCloudData(localState: Record<string, unknown>, cloudState: Record<string, unknown>): boolean {
   try {
     // Chercher la date de dernière modification dans les données
     const localDates = extractModificationDates(localState);
@@ -137,7 +136,7 @@ function shouldUseCloudData(localState: any, cloudState: any): boolean {
 /**
  * Extraire toutes les dates de modification des entités
  */
-function extractModificationDates(state: any): number[] {
+function extractModificationDates(state: Record<string, unknown>): number[] {
   const dates: number[] = [];
   
   try {
@@ -155,18 +154,20 @@ function extractModificationDates(state: any): number[] {
     ];
     
     for (const collection of collections) {
-      if (state.state?.[collection]) {
-        const items = state.state[collection];
+      const stateObj = state.state as Record<string, unknown>;
+      if (stateObj?.[collection]) {
+        const items = stateObj[collection];
         if (Array.isArray(items)) {
-          items.forEach((item: any) => {
-            if (item.derniere_modification) {
-              dates.push(new Date(item.derniere_modification).getTime());
-            } else if (item.date_creation) {
-              dates.push(new Date(item.date_creation).getTime());
-            } else if (item.date_production) {
-              dates.push(new Date(item.date_production).getTime());
-            } else if (item.date_achat) {
-              dates.push(new Date(item.date_achat).getTime());
+          items.forEach((item: unknown) => {
+            const itemObj = item as Record<string, unknown>;
+            if (itemObj.derniere_modification) {
+              dates.push(new Date(itemObj.derniere_modification as string).getTime());
+            } else if (itemObj.date_creation) {
+              dates.push(new Date(itemObj.date_creation as string).getTime());
+            } else if (itemObj.date_production) {
+              dates.push(new Date(itemObj.date_production as string).getTime());
+            } else if (itemObj.date_achat) {
+              dates.push(new Date(itemObj.date_achat as string).getTime());
             }
           });
         }

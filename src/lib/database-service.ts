@@ -38,7 +38,7 @@ class DatabaseService {
     }
 
     try {
-      const { data, error } = await supabase.auth.getSession();
+      const { error } = await supabase.auth.getSession();
       if (error) throw error;
       
       this.updateSyncStatus({ 
@@ -58,7 +58,7 @@ class DatabaseService {
   /**
    * Sauvegarder les données dans Supabase
    */
-  async saveData(userId: string, data: any): Promise<boolean> {
+  async saveData(userId: string, data: Record<string, unknown>): Promise<boolean> {
     if (!isSupabaseConfigured || !supabase) {
       console.warn('Supabase non configuré, utilisation du localStorage uniquement');
       return false;
@@ -118,7 +118,7 @@ class DatabaseService {
   /**
    * Charger les données depuis Supabase
    */
-  async loadData(userId: string): Promise<any | null> {
+  async loadData(userId: string): Promise<Record<string, unknown> | null> {
     if (!isSupabaseConfigured || !supabase) {
       console.warn('Supabase non configuré, utilisation du localStorage uniquement');
       return null;
@@ -166,7 +166,7 @@ class DatabaseService {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -192,7 +192,7 @@ class DatabaseService {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });

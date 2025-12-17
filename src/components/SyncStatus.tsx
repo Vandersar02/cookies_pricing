@@ -11,7 +11,7 @@ import AuthModal from './AuthModal';
 
 export default function SyncStatus() {
   const [syncStatus, setSyncStatus] = useState<SyncStatusType>(databaseService.getSyncStatus());
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email?: string; id: string } | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
