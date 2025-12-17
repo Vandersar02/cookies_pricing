@@ -565,7 +565,7 @@ export default function Achats() {
                   </div>
 
                   <div>
-                    <label className="label">Prix total (HTG) *</label>
+                    <label className="label">Prix total (G) *</label>
                     <input
                       type="number"
                       step="0.01"

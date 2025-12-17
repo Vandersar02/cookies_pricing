@@ -10,6 +10,7 @@ import {
   Warehouse,
   Menu,
   X,
+  Receipt,
 } from "lucide-react";
 import Dashboard from "@/pages/Dashboard";
 import Ingredients from "@/pages/Ingredients";
@@ -31,7 +32,7 @@ function App() {
     { id: "recettes", nom: "Recettes", icon: Cookie },
     { id: "emballages", nom: "Emballages", icon: Package },
     { id: "stocks", nom: "Stocks", icon: Warehouse },
-    { id: "achats", nom: "Achats", icon: ShoppingCart },
+    { id: "achats", nom: "Achats", icon: Receipt },
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },

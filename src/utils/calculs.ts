@@ -492,7 +492,7 @@ import type {
   StatistiquesFournisseur, 
   DepensesPeriode,
   PeriodeAnalyse,
-  RecommandationReapprovisionnement 
+  RecommandationReapprovisionnement
 } from '@/types';
 import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
@@ -528,10 +528,10 @@ export function calculerStatistiquesFournisseur(
   
   // Calculer la fréquence moyenne en jours
   let frequenceMoyenne: number | undefined;
-  if (achatsTries.length >= 2) {
+  if (achatsTries.length >= 2 && premierAchat && dernierAchat) {
     const joursTotal = differenceInDays(
-      new Date(dernierAchat!),
-      new Date(premierAchat!)
+      new Date(dernierAchat),
+      new Date(premierAchat)
     );
     frequenceMoyenne = Math.round(joursTotal / (achatsTries.length - 1));
   }
@@ -580,7 +580,10 @@ export function grouperAchatsParPeriode(
     if (!groupes.has(cle)) {
       groupes.set(cle, []);
     }
-    groupes.get(cle)!.push(achat);
+    const groupe = groupes.get(cle);
+    if (groupe) {
+      groupe.push(achat);
+    }
   });
 
   // Convertir en tableau et trier par période
