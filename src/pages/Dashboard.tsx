@@ -302,7 +302,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-slate-100 mb-4">
               Formats de vente
             </h2>
-            <div className="overflow-x-auto">
+            <div className="table-container">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-700">

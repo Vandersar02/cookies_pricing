@@ -200,7 +200,7 @@ export default function Analyses() {
                 Comparaison des formats
               </h2>
 
-              <div className="overflow-x-auto">
+              <div className="table-container">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-700">
