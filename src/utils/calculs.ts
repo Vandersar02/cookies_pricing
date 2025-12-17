@@ -572,10 +572,11 @@ export function grouperAchatsParPeriode(
       case 'mensuelle':
         cle = format(startOfMonth(date), 'yyyy-MM');
         break;
-      case 'trimestrielle':
+      case 'trimestrielle': {
         const quarter = Math.floor(date.getMonth() / 3) + 1;
         cle = `${date.getFullYear()}-Q${quarter}`;
         break;
+      }
       case 'annuelle':
         cle = date.getFullYear().toString();
         break;
