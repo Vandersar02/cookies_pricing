@@ -23,6 +23,7 @@ import Analyses from "@/pages/Analyses";
 import Stocks from "@/pages/Stocks";
 import Achats from "@/pages/Achats";
 import ComparateurMarges from "@/pages/ComparateurMarges";
+import Optimisations from "@/pages/Optimisations";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -38,6 +39,7 @@ function App() {
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
     { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
+    { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
   ];
 
@@ -61,6 +63,8 @@ function App() {
         return <FormatsVente />;
       case "comparateur":
         return <ComparateurMarges />;
+      case "optimisations":
+        return <Optimisations />;
       case "analyses":
         return <Analyses />;
       default:
