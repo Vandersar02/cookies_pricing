@@ -99,7 +99,8 @@ function App() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setMenuMobileOuvert(!menuMobileOuvert)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 rounded-lg shadow-lg border border-slate-700"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-slate-800 rounded-lg shadow-lg border border-slate-700 touch-target"
+        aria-label={menuMobileOuvert ? "Fermer le menu" : "Ouvrir le menu"}
       >
         {menuMobileOuvert ? (
           <X className="w-6 h-6 text-slate-100" />
@@ -119,7 +120,7 @@ function App() {
       {/* Sidebar */}
       <aside
         className={`
-        w-64 bg-slate-900 border-r border-slate-700 flex flex-col
+        w-64 sm:w-72 bg-slate-900 border-r border-slate-700 flex flex-col
         fixed lg:static inset-y-0 left-0 z-40
         transform transition-transform duration-300 ease-in-out
         ${
@@ -129,16 +130,16 @@ function App() {
         }
       `}
       >
-        <div className="p-6 border-b border-slate-700">
+        <div className="p-4 sm:p-6 border-b border-slate-700">
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2">
               <img
                 src="/cookies.png"
                 alt="Logo"
-                className="w-8 h-8 object-contain"
+                className="w-8 h-8 object-contain flex-shrink-0"
               />
-              <div>
-                <h1 className="text-xl font-bold text-slate-100">Tamy Cookies</h1>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-100 truncate">Tamy Cookies</h1>
                 <p className="text-xs text-slate-400">Calcul des coûts</p>
               </div>
             </div>
@@ -157,14 +158,14 @@ function App() {
                       changerPage(item.id);
                       setMenuMobileOuvert(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
                       pageActive === item.id
                         ? "bg-primary-700 text-primary-100 font-medium"
                         : "text-slate-300 hover:bg-slate-800"
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span>{item.nom}</span>
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="truncate">{item.nom}</span>
                   </button>
                 </li>
               );
@@ -205,7 +206,7 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto w-full lg:w-auto pt-16 lg:pt-0">
+      <main className="flex-1 overflow-auto w-full lg:w-auto pt-14 sm:pt-16 lg:pt-0">
         {renderPage()}
       </main>
     </div>

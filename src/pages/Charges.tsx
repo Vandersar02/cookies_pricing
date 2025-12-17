@@ -421,7 +421,7 @@ export default function Charges() {
               </div>
             ) : (
               <div className="card">
-                <div className="overflow-x-auto">
+                <div className="table-container">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-slate-700">
@@ -490,9 +490,9 @@ export default function Charges() {
 
         {/* Dialog Charges */}
         {dialogChargesOuvert && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-slate-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-slate-700">
+              <div className="p-4 sm:p-6 border-b border-slate-700">
                 <h2 className="text-2xl font-bold text-slate-100">
                   {chargesEnEdition ? "Modifier" : "Nouvelles"} charges
                 </h2>
@@ -758,9 +758,9 @@ export default function Charges() {
 
         {/* Dialog Pertes */}
         {dialogPertesOuvert && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-slate-700">
+              <div className="p-4 sm:p-6 border-b border-slate-700">
                 <h2 className="text-2xl font-bold text-slate-100">
                   {perteEnEdition ? "Modifier" : "Nouvelle"} perte
                 </h2>

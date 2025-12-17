@@ -265,7 +265,7 @@ export default function Optimisations() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="table-container">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-slate-700">
@@ -438,7 +438,7 @@ export default function Optimisations() {
                   <h3 className="text-lg font-semibold text-slate-100 mb-3">
                     Objectifs par format
                   </h3>
-                  <div className="overflow-x-auto">
+                  <div className="table-container">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-slate-700">

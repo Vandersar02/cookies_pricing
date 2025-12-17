@@ -187,7 +187,7 @@ export default function ComparateurMarges() {
                 Coût de revient total : <span className="font-medium text-slate-100">{formaterEuro(format.cout_total_revient)}</span>
               </p>
               
-              <div className="overflow-x-auto">
+              <div className="table-container">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-700">
