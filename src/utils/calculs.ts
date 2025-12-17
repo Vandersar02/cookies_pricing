@@ -159,6 +159,16 @@ export function calculerCoutEmballageParCookie(emballage: Emballage): number {
     : 0;
 }
 
+/**
+ * Calcule le coût des extras d'emballage par cookie
+ */
+export function calculerCoutExtrasParCookie(emballage: Emballage): number {
+  if (!emballage.cout_extras || emballage.capacite_cookies === 0) {
+    return 0;
+  }
+  return emballage.cout_extras / emballage.capacite_cookies;
+}
+
 // ============================================
 // 4. CALCULS CHARGES
 // ============================================
@@ -379,29 +389,32 @@ export function calculerFormatVenteComplet(
   // 1. Coût des cookies
   const coutCookies = coutParCookie * format.quantite_cookies;
   
-  // 2. Coût emballage
+  // 2. Coût emballage (base)
   const coutEmballage = emballage.cout_unitaire;
   
-  // 3. Charges réparties sur le format
+  // 3. Coût des extras d'emballage (étiquettes, rubans, décorations, etc.)
+  const coutEmballageExtras = emballage.cout_extras || 0;
+  
+  // 4. Charges réparties sur le format
   const chargesActives = chargesGlobales.filter(c => c.actif);
   const coutCharges = chargesActives.reduce((total, charge) => {
     const chargeParCookie = calculerChargeParCookie(charge, coutParCookie);
     return total + (chargeParCookie * format.quantite_cookies);
   }, 0);
   
-  // 4. Pertes
+  // 5. Pertes
   const pertesActives = pertes.filter(p => p.actif);
   const tauxPerteTotal = pertesActives.reduce((total, perte) => {
     return total + perte.taux_perte_pourcentage;
   }, 0);
   
-  const coutAvantPertes = coutCookies + coutEmballage + coutCharges;
+  const coutAvantPertes = coutCookies + coutEmballage + coutEmballageExtras + coutCharges;
   const coutPertes = calculerCoutPertes(coutAvantPertes, tauxPerteTotal);
   
-  // 5. Coût total de revient
+  // 6. Coût total de revient
   const coutTotalRevient = coutAvantPertes + coutPertes;
   
-  // 6. Pricing
+  // 7. Pricing
   const pricing = calculerPricingComplet(
     coutTotalRevient,
     format.marge_cible_pourcentage,
@@ -412,6 +425,7 @@ export function calculerFormatVenteComplet(
     ...format,
     cout_cookies: coutCookies,
     cout_emballage: coutEmballage,
+    cout_emballage_extras: coutEmballageExtras,
     cout_charges: coutCharges,
     cout_pertes: coutPertes,
     cout_total_revient: coutTotalRevient,

@@ -270,9 +270,15 @@ export default function FormatsVente() {
                 {voirDetails === format.id && (
                   <div className="mb-4 p-3 bg-slate-900 rounded-lg space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Cookies</span>
+                      <span className="text-slate-400">Cookies ({format.quantite_cookies}×)</span>
                       <span className="font-medium">
                         {formaterEuro(format.cout_cookies)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-slate-500 pl-4">
+                      <span>Par cookie</span>
+                      <span>
+                        {formaterEuro(format.cout_cookies / format.quantite_cookies)}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -281,6 +287,14 @@ export default function FormatsVente() {
                         {formaterEuro(format.cout_emballage)}
                       </span>
                     </div>
+                    {format.cout_emballage_extras > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Extras emballage</span>
+                        <span className="font-medium">
+                          {formaterEuro(format.cout_emballage_extras)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-slate-400">Charges</span>
                       <span className="font-medium">
@@ -297,6 +311,12 @@ export default function FormatsVente() {
                       <span className="text-slate-100">Coût total</span>
                       <span className="text-slate-100">
                         {formaterEuro(format.cout_total_revient)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-blue-400 pt-1">
+                      <span>Coût par cookie</span>
+                      <span className="font-medium">
+                        {formaterEuro(format.cout_total_revient / format.quantite_cookies)}
                       </span>
                     </div>
                   </div>

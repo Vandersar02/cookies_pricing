@@ -20,6 +20,8 @@ export default function Emballages() {
     type: "sachet" as TypeEmballage,
     capacite_cookies: 0,
     cout_unitaire: 0,
+    cout_extras: 0,
+    description_extras: "",
     fournisseur: "",
     materiau: "",
     quantite_stock: 0,
@@ -34,6 +36,8 @@ export default function Emballages() {
         type: emballage.type,
         capacite_cookies: emballage.capacite_cookies,
         cout_unitaire: emballage.cout_unitaire,
+        cout_extras: emballage.cout_extras || 0,
+        description_extras: emballage.description_extras || "",
         fournisseur: emballage.fournisseur || "",
         materiau: emballage.materiau || "",
         quantite_stock: emballage.quantite_stock || 0,
@@ -46,6 +50,8 @@ export default function Emballages() {
         type: "sachet",
         capacite_cookies: 0,
         cout_unitaire: 0,
+        cout_extras: 0,
+        description_extras: "",
         fournisseur: "",
         materiau: "",
         quantite_stock: 0,
@@ -141,6 +147,9 @@ export default function Emballages() {
                       Coût unitaire
                     </th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
+                      Extras
+                    </th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
                       Coût/cookie
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
@@ -173,6 +182,11 @@ export default function Emballages() {
                       </td>
                       <td className="py-3 px-4 text-right font-medium text-slate-100">
                         {formaterEuro(emballage.cout_unitaire)}
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300">
+                        {emballage.cout_extras 
+                          ? formaterEuro(emballage.cout_extras)
+                          : "-"}
                       </td>
                       <td className="py-3 px-4 text-right font-medium text-green-400">
                         {formaterEuro(emballage.cout_par_cookie)}
@@ -288,6 +302,55 @@ export default function Emballages() {
                       required
                       min="0"
                     />
+                  </div>
+
+                  <div className="md:col-span-2 border-t border-slate-700 pt-4 mt-2">
+                    <h3 className="font-semibold text-slate-100 mb-3">
+                      Produits additionnels (optionnel)
+                    </h3>
+                    <p className="text-sm text-slate-400 mb-3">
+                      Ajoutez le coût des éléments supplémentaires : étiquettes, rubans, décorations, etc.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="label">Coût extras (€)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="input"
+                      value={formData.cout_extras}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          cout_extras: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label">Description des extras</label>
+                    <input
+                      type="text"
+                      className="input"
+                      value={formData.description_extras}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description_extras: e.target.value,
+                        })
+                      }
+                      placeholder="Ex: Étiquette + ruban"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 border-t border-slate-700 pt-4 mt-2">
+                    <h3 className="font-semibold text-slate-100 mb-3">
+                      Autres informations
+                    </h3>
                   </div>
 
                   <div>

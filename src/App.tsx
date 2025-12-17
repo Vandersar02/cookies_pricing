@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Receipt,
+  Calculator,
 } from "lucide-react";
 import Dashboard from "@/pages/Dashboard";
 import Ingredients from "@/pages/Ingredients";
@@ -21,6 +22,7 @@ import FormatsVente from "@/pages/FormatsVente";
 import Analyses from "@/pages/Analyses";
 import Stocks from "@/pages/Stocks";
 import Achats from "@/pages/Achats";
+import ComparateurMarges from "@/pages/ComparateurMarges";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -35,6 +37,7 @@ function App() {
     { id: "achats", nom: "Achats", icon: Receipt },
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
+    { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
   ];
 
@@ -56,6 +59,8 @@ function App() {
         return <Charges />;
       case "formats":
         return <FormatsVente />;
+      case "comparateur":
+        return <ComparateurMarges />;
       case "analyses":
         return <Analyses />;
       default:

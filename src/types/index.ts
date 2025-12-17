@@ -148,6 +148,10 @@ export interface Emballage {
   materiau?: string;
   quantite_stock?: number;
 
+  // Produits additionnels (étiquettes, rubans, décorations, etc.)
+  cout_extras?: number; // coût des produits additionnels par emballage
+  description_extras?: string; // description des extras (ex: "Étiquette + ruban")
+
   // Calculé
   cout_par_cookie: number; // = cout_unitaire / capacite_cookies
 
@@ -245,6 +249,7 @@ export interface FormatVente {
   // Coûts calculés
   cout_cookies: number; // = cout_par_cookie × quantite
   cout_emballage: number;
+  cout_emballage_extras: number; // coût des produits additionnels (étiquettes, rubans, etc.)
   cout_charges: number; // charges réparties
   cout_pertes: number; // impact pertes
   cout_total_revient: number; // SOMME totale

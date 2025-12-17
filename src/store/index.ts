@@ -117,6 +117,7 @@ interface AppState {
       | "date_creation"
       | "cout_cookies"
       | "cout_emballage"
+      | "cout_emballage_extras"
       | "cout_charges"
       | "cout_pertes"
       | "cout_total_revient"
@@ -457,7 +458,7 @@ export const useStore = create<AppState>()(
       },
 
       // ============ ACTIONS FORMATS VENTE ============
-      ajouterFormatVente: (format: Omit<FormatVente, | "id" | "date_creation" | "cout_cookies" | "cout_emballage" | "cout_charges" | "cout_pertes" | "cout_total_revient" | "prix_vente_recommande" | "profit_unitaire" | "marge_reelle_pourcentage" | "actif">) => {
+      ajouterFormatVente: (format: Omit<FormatVente, | "id" | "date_creation" | "cout_cookies" | "cout_emballage" | "cout_emballage_extras" | "cout_charges" | "cout_pertes" | "cout_total_revient" | "prix_vente_recommande" | "profit_unitaire" | "marge_reelle_pourcentage" | "actif">) => {
         const { recettes, emballages, charges, pertes } = get();
 
         const recette = recettes.find((r: Recette) => r.id === format.type_cookie_id);
@@ -474,6 +475,7 @@ export const useStore = create<AppState>()(
             id: genererID(),
             cout_cookies: 0,
             cout_emballage: 0,
+            cout_emballage_extras: 0,
             cout_charges: 0,
             cout_pertes: 0,
             cout_total_revient: 0,
