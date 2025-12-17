@@ -628,3 +628,127 @@ export interface AnalyseSensibilite {
   
   recommandation?: string; // Prix recommandé basé sur l'analyse
 }
+
+// ============================================
+// 11. EXPORTS & LABELS (PHASE 4)
+// ============================================
+
+export type TypeEtiquette = 
+  | "prix" // Étiquette de prix pour vente
+  | "ingredients" // Liste des ingrédients (allergènes, composition)
+  | "production" // Numéro de lot, date de production/péremption
+  | "inventaire" // Gestion de stock avec code-barres
+  | "complete"; // Toutes les informations
+
+export type FormatCodeBarre =
+  | "EAN13" // Code-barres standard européen (13 chiffres)
+  | "CODE128" // Code-barres alphanumérique
+  | "QR"; // QR code (peut contenir plus d'infos)
+
+export interface ConfigurationEtiquette {
+  // Format d'étiquette
+  largeur_mm: number; // Largeur en millimètres
+  hauteur_mm: number; // Hauteur en millimètres
+  
+  // Type d'étiquette
+  type: TypeEtiquette;
+  
+  // Affichage
+  inclure_logo: boolean;
+  inclure_code_barre: boolean;
+  format_code_barre: FormatCodeBarre;
+  inclure_qr_code: boolean;
+  
+  // Contenu (selon le type)
+  afficher_prix: boolean;
+  afficher_ingredients: boolean;
+  afficher_allergenes: boolean;
+  afficher_valeurs_nutritionnelles: boolean;
+  afficher_date_production: boolean;
+  afficher_date_peremption: boolean;
+  jours_avant_peremption?: number; // DLC par défaut
+  
+  // Mise en page
+  taille_police: number; // En points
+  langue: "fr" | "en";
+}
+
+export interface DonneesEtiquette {
+  // Produit
+  format_id: string;
+  nom_produit: string;
+  recette_nom: string;
+  quantite: number; // nombre de cookies dans le format
+  
+  // Prix
+  prix_vente?: number;
+  
+  // Composition
+  liste_ingredients?: string[]; // Liste ordonnée des ingrédients
+  allergenes?: string[]; // Liste des allergènes présents
+  
+  // Dates
+  date_production?: Date;
+  date_peremption?: Date;
+  numero_lot?: string;
+  
+  // Code identification
+  code_barre?: string; // EAN-13 ou CODE128
+  qr_code_data?: string; // URL ou données JSON
+  
+  // Informations légales
+  poids_net?: number; // En grammes
+  nom_fabricant?: string;
+  adresse_fabricant?: string;
+  
+  // Valeurs nutritionnelles (optionnel)
+  valeurs_nutritionnelles?: {
+    energie_kj: number;
+    energie_kcal: number;
+    matieres_grasses_g: number;
+    acides_gras_satures_g: number;
+    glucides_g: number;
+    sucres_g: number;
+    proteines_g: number;
+    sel_g: number;
+  };
+}
+
+export interface ExportConfiguration {
+  // Type d'export
+  format: "csv" | "excel" | "pdf" | "json";
+  
+  // Données à exporter
+  inclure_ingredients: boolean;
+  inclure_recettes: boolean;
+  inclure_formats: boolean;
+  inclure_achats: boolean;
+  inclure_stocks: boolean;
+  inclure_productions: boolean;
+  inclure_analyses: boolean;
+  
+  // Période
+  date_debut?: Date;
+  date_fin?: Date;
+  
+  // Options
+  separator?: string; // Pour CSV (virgule ou point-virgule)
+  devise?: string; // Symbole de devise
+}
+
+// Service Worker pour mode hors-ligne
+export interface SyncStatus {
+  derniere_sync: Date | null;
+  sync_en_cours: boolean;
+  mode_hors_ligne: boolean;
+  donnees_en_attente: number; // Nombre de modifications non synchronisées
+}
+
+export interface ModificationHorsLigne {
+  id: string;
+  type: "create" | "update" | "delete";
+  entity: string; // "ingredient", "recette", "format", etc.
+  entity_id: string;
+  data: any;
+  timestamp: Date;
+}
