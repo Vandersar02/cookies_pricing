@@ -30,6 +30,7 @@ import {
   calculerCoutEmballageParCookie,
   calculerTotalCharges,
   calculerFormatVenteComplet,
+  convertirUnite,
 } from "@/utils/calculs";
 
 interface AppState {
@@ -702,17 +703,24 @@ export const useStore = create<AppState>()(
             return state;
           }
 
-          // Consommer le stock automatiquement
+          // Consommer le stock automatiquement avec conversion d'unités
           const ingredientsUpdated = state.ingredients.map((ing) => {
             const consommation = production.stock_consomme.find(
               (s) => s.ingredient_id === ing.id
             );
             if (consommation && ing.quantite_stock !== undefined) {
+              // Convertir la quantité consommée vers l'unité de stock de l'ingrédient
+              const quantiteConvertie = convertirUnite(
+                consommation.quantite_consommee,
+                consommation.unite,
+                ing.unite_achat
+              );
+              
               return {
                 ...ing,
                 quantite_stock: Math.max(
                   0,
-                  ing.quantite_stock - consommation.quantite_consommee
+                  ing.quantite_stock - quantiteConvertie
                 ),
               };
             }
@@ -810,13 +818,19 @@ export const useStore = create<AppState>()(
           if (!recette) return state;
 
           // Créer une production à partir de la planification
-          const stockConsomme = plan.ingredients_necessaires.map((ing) => ({
-            ingredient_id: ing.ingredient_id,
-            ingredient_nom: ing.ingredient_nom,
-            quantite_consommee: ing.quantite_necessaire,
-            unite: state.ingredients.find((i) => i.id === ing.ingredient_id)
-              ?.unite_achat || "kg",
-          }));
+          // Utiliser l'unité de la recette pour la consommation (sera convertie lors de la déduction de stock)
+          const stockConsomme = recette.ingredients.map((recetteIng) => {
+            const quantiteRecettes = Math.ceil(
+              plan.quantite_a_produire / recette.nombre_cookies_produits
+            );
+            
+            return {
+              ingredient_id: recetteIng.ingredient_id,
+              ingredient_nom: recetteIng.ingredient_nom,
+              quantite_consommee: recetteIng.quantite_necessaire * quantiteRecettes,
+              unite: recetteIng.unite, // Utiliser l'unité de la recette
+            };
+          });
 
           const nouvelleProduction: ProductionRecord = {
             id: genererID(),
