@@ -31,19 +31,65 @@ import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 // ============================================
 
 /**
+ * Facteurs de conversion vers grammes (unité de base)
+ * 
+ * Note: Les facteurs de conversion sont des approximations raisonnables.
+ * - Pour unités variables (pièce, boîte, sachet, paquet): facteur 1 = l'utilisateur définit le poids réel via le prix
+ * - Pour volumes (cuillère, tasse): approximations standards pour usage général en pâtisserie
+ * - Pour unités impériales: lb (livres) et oz (onces) avec conversions exactes
+ * - Pour meilleure précision: utiliser kg/g pour ingrédients secs et L/mL pour liquides
+ */
+const CONVERSIONS_VERS_GRAMMES: Record<string, number> = {
+  'kg': 1000,
+  'g': 1,
+  'L': 1000, // approximation pour liquides (densité ~1)
+  'mL': 1,
+  'lb': 453.592, // livre (pound) = 453.592 grammes
+  'oz': 28.3495, // once (ounce) = 28.3495 grammes
+  'unité': 1, // l'utilisateur définit le poids via le prix d'achat
+  'paquet': 1, // l'utilisateur définit le poids via le prix d'achat
+  'pièce': 1, // l'utilisateur définit le poids via le prix d'achat
+  'boîte': 1, // l'utilisateur définit le poids via le prix d'achat
+  'sachet': 1, // l'utilisateur définit le poids via le prix d'achat
+  'cuillère': 15, // approximation cuillère à soupe (~15g pour ingrédients secs)
+  'tasse': 240, // approximation tasse standard (~240g/mL pour eau et ingrédients similaires)
+};
+
+/**
  * Convertit une quantité en grammes
  */
 export function convertirEnGrammes(quantite: number, unite: string): number {
-  const conversions: Record<string, number> = {
-    'kg': 1000,
-    'g': 1,
-    'L': 1000, // approximation pour liquides (densité ~1)
-    'mL': 1,
-    'unité': 1,
-    'paquet': 1,
-  };
+  return quantite * (CONVERSIONS_VERS_GRAMMES[unite] || 1);
+}
+
+/**
+ * Convertit une quantité d'une unité vers une autre
+ * Utile pour convertir entre différentes unités (ex: lb vers kg, oz vers g, etc.)
+ * 
+ * Note: Pour les unités variables (pièce, boîte, sachet, etc.), la conversion
+ * retourne la quantité en grammes car ces unités n'ont pas de facteur de conversion fixe.
+ */
+export function convertirUnite(
+  quantite: number,
+  uniteSource: string,
+  uniteCible: string
+): number {
+  // Si les unités sont identiques, pas besoin de conversion
+  if (uniteSource === uniteCible) {
+    return quantite;
+  }
   
-  return quantite * (conversions[unite] || 1);
+  // Convertir d'abord en grammes (unité de base)
+  const grammes = convertirEnGrammes(quantite, uniteSource);
+  
+  // Puis convertir des grammes vers l'unité cible
+  const facteurCible = CONVERSIONS_VERS_GRAMMES[uniteCible];
+  if (facteurCible && facteurCible > 0) {
+    return grammes / facteurCible;
+  }
+  
+  // Si l'unité cible n'est pas convertible (unités variables), retourner la quantité en grammes
+  return grammes;
 }
 
 /**

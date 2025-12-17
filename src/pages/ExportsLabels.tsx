@@ -291,58 +291,62 @@ export default function ExportsLabels() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-          <FileText className="w-8 h-8" />
-          Exports & Étiquettes
-        </h1>
-        <p className="text-slate-400">
-          Générez des étiquettes PDF, codes-barres, QR codes et exportez vos
-          données
-        </p>
-      </div>
+    <div className="p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-2 md:gap-3">
+            <FileText className="w-6 h-6 md:w-8 md:h-8" />
+            Exports & Étiquettes
+          </h1>
+          <p className="text-sm md:text-base text-slate-400">
+            Générez des étiquettes PDF, codes-barres, QR codes et exportez vos
+            données
+          </p>
+        </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-slate-700">
-        <button
-          onClick={() => setActiveTab('etiquettes')}
-          className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'etiquettes'
-              ? 'text-blue-400 border-b-2 border-blue-400'
-              : 'text-slate-400 hover:text-slate-300'
-          }`}
-        >
-          <Printer className="w-5 h-5" />
-          Étiquettes & Codes
-        </button>
-        <button
-          onClick={() => setActiveTab('exports')}
-          className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'exports'
-              ? 'text-blue-400 border-b-2 border-blue-400'
-              : 'text-slate-400 hover:text-slate-300'
-          }`}
-        >
-          <Download className="w-5 h-5" />
-          Exports de Données
-        </button>
-        <button
-          onClick={() => setActiveTab('offline')}
-          className={`px-6 py-3 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'offline'
-              ? 'text-blue-400 border-b-2 border-blue-400'
-              : 'text-slate-400 hover:text-slate-300'
-          }`}
-        >
-          {syncStatus?.mode_hors_ligne ? (
-            <WifiOff className="w-5 h-5" />
-          ) : (
-            <Wifi className="w-5 h-5" />
-          )}
-          Mode Hors-ligne
-        </button>
-      </div>
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-1 sm:gap-2 mb-6 border-b border-slate-700 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('etiquettes')}
+            className={`px-3 sm:px-4 md:px-6 py-2 md:py-3 font-medium transition-colors flex items-center gap-1 sm:gap-2 text-sm md:text-base whitespace-nowrap ${
+              activeTab === 'etiquettes'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <Printer className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden sm:inline">Étiquettes & Codes</span>
+            <span className="sm:hidden">Étiquettes</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('exports')}
+            className={`px-3 sm:px-4 md:px-6 py-2 md:py-3 font-medium transition-colors flex items-center gap-1 sm:gap-2 text-sm md:text-base whitespace-nowrap ${
+              activeTab === 'exports'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <Download className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden sm:inline">Exports de Données</span>
+            <span className="sm:hidden">Exports</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('offline')}
+            className={`px-3 sm:px-4 md:px-6 py-2 md:py-3 font-medium transition-colors flex items-center gap-1 sm:gap-2 text-sm md:text-base whitespace-nowrap ${
+              activeTab === 'offline'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            {syncStatus?.mode_hors_ligne ? (
+              <WifiOff className="w-4 h-4 md:w-5 md:h-5" />
+            ) : (
+              <Wifi className="w-4 h-4 md:w-5 md:h-5" />
+            )}
+            <span className="hidden sm:inline">Mode Hors-ligne</span>
+            <span className="sm:hidden">Hors-ligne</span>
+          </button>
+        </div>
 
       {/* Onglet Étiquettes */}
       {activeTab === 'etiquettes' && (
@@ -856,6 +860,7 @@ export default function ExportsLabels() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
