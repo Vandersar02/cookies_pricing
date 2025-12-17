@@ -32,6 +32,7 @@ export default function Dashboard() {
     alertes,
     genererAlertes,
     emballages,
+    achats,
   } = useStore();
 
   useEffect(() => {
@@ -58,9 +59,8 @@ export default function Dashboard() {
       : 0;
 
   // Calculs financiers
-  const coutTotalIngredients = ingredients
-    .filter((i) => i.actif)
-    .reduce((acc, i) => acc + i.prix_achat_total, 0);
+  const coutTotalIngredients = achats
+    .reduce((acc, a) => acc + a.prix_total, 0);
 
   const revenuPotentiel = formatsVente
     .filter((f) => f.actif)

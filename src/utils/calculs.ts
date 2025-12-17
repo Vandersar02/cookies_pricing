@@ -42,24 +42,31 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
 }
 
 /**
- * Calcule le prix par gramme d'un ingrédient
+ * Calcule le prix par gramme d'un ingrédient depuis son prix par unité
  */
 export function calculerPrixParGramme(ingredient: Ingredient): number {
-  const grammesTotal = convertirEnGrammes(
-    ingredient.quantite_achetee, 
-    ingredient.unite_achat
-  );
-  
-  return grammesTotal > 0 ? ingredient.prix_achat_total / grammesTotal : 0;
+  const grammesParUnite = convertirEnGrammes(1, ingredient.unite_achat);
+  return grammesParUnite > 0 ? ingredient.prix_par_unite / grammesParUnite : 0;
 }
 
 /**
- * Calcule le prix par unité d'un ingrédient
+ * Calcule le prix par unité d'un ingrédient depuis l'historique des achats
+ * Utilise le dernier achat ou la moyenne des achats récents
  */
-export function calculerPrixParUnite(ingredient: Ingredient): number {
-  return ingredient.quantite_achetee > 0 
-    ? ingredient.prix_achat_total / ingredient.quantite_achetee 
-    : 0;
+export function calculerPrixParUniteDepuisAchats(
+  ingredient_id: string,
+  achats: AchatIngredient[]
+): number {
+  const achatsIngredient = achats
+    .filter(a => a.ingredient_id === ingredient_id)
+    .sort((a, b) => new Date(b.date_achat).getTime() - new Date(a.date_achat).getTime());
+  
+  if (achatsIngredient.length === 0) {
+    return 0;
+  }
+  
+  // Utiliser le prix du dernier achat
+  return achatsIngredient[0].prix_unitaire;
 }
 
 // ============================================

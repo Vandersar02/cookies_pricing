@@ -10,6 +10,7 @@ export default function Ingredients() {
     ajouterIngredient,
     modifierIngredient,
     supprimerIngredient,
+    ajouterAchat,
     categoriesPersonnalisees,
     ajouterCategoriePersonnalisee,
   } = useStore();
@@ -23,6 +24,7 @@ export default function Ingredients() {
     nom: "",
     categorie: "autre",
     unite_achat: "kg" as UniteAchat,
+    // Champs pour le premier achat lors de l'ajout
     quantite_achetee: 0,
     prix_achat_total: 0,
     fournisseur: "",
@@ -36,9 +38,9 @@ export default function Ingredients() {
         nom: ingredient.nom,
         categorie: ingredient.categorie,
         unite_achat: ingredient.unite_achat,
-        quantite_achetee: ingredient.quantite_achetee,
-        prix_achat_total: ingredient.prix_achat_total,
-        fournisseur: ingredient.fournisseur || "",
+        quantite_achetee: 0,
+        prix_achat_total: 0,
+        fournisseur: "",
         notes: ingredient.notes || "",
       });
     } else {
@@ -65,9 +67,41 @@ export default function Ingredients() {
     e.preventDefault();
 
     if (ingredientEnEdition) {
-      modifierIngredient(ingredientEnEdition.id, formData);
+      // Modification d'un ingrédient existant
+      modifierIngredient(ingredientEnEdition.id, {
+        nom: formData.nom,
+        categorie: formData.categorie,
+        unite_achat: formData.unite_achat,
+        notes: formData.notes,
+      });
     } else {
-      ajouterIngredient(formData);
+      // Ajout d'un nouvel ingrédient
+      ajouterIngredient({
+        nom: formData.nom,
+        categorie: formData.categorie,
+        unite_achat: formData.unite_achat,
+        notes: formData.notes,
+      });
+      
+      // Créer un achat initial si des données d'achat sont fournies
+      if (formData.quantite_achetee > 0 && formData.prix_achat_total > 0) {
+        // Trouver l'ID du nouvel ingrédient (le dernier ajouté)
+        const ingredients = useStore.getState().ingredients;
+        const nouvelIngredient = ingredients[ingredients.length - 1];
+        
+        if (nouvelIngredient) {
+          ajouterAchat({
+            ingredient_id: nouvelIngredient.id,
+            ingredient_nom: formData.nom,
+            fournisseur: formData.fournisseur || "Non spécifié",
+            quantite: formData.quantite_achetee,
+            unite: formData.unite_achat,
+            prix_total: formData.prix_achat_total,
+            date_achat: new Date(),
+            notes: formData.notes,
+          });
+        }
+      }
     }
 
     fermerDialog();
@@ -151,17 +185,14 @@ export default function Ingredients() {
                     <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
                       Catégorie
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
-                      Quantité achetée
-                    </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
-                      Prix total
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
+                      Unité
                     </th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
                       Prix/unité
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
-                      Fournisseur
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
+                      Stock actuel
                     </th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
                       Actions
@@ -182,18 +213,18 @@ export default function Ingredients() {
                           {ingredient.categorie}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-300">
-                        {ingredient.quantite_achetee} {ingredient.unite_achat}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-100">
-                        {formaterEuro(ingredient.prix_achat_total)}
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-green-400">
-                        {formaterEuro(ingredient.prix_par_unite)}/
+                      <td className="py-3 px-4 text-slate-300">
                         {ingredient.unite_achat}
                       </td>
-                      <td className="py-3 px-4 text-slate-400">
-                        {ingredient.fournisseur || "-"}
+                      <td className="py-3 px-4 text-right font-medium text-green-400">
+                        {ingredient.prix_par_unite > 0 
+                          ? `${formaterEuro(ingredient.prix_par_unite)}/${ingredient.unite_achat}`
+                          : "Aucun achat"}
+                      </td>
+                      <td className="py-3 px-4 text-right text-slate-300">
+                        {ingredient.quantite_stock !== undefined 
+                          ? `${ingredient.quantite_stock} ${ingredient.unite_achat}`
+                          : "-"}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-end gap-2">
@@ -329,57 +360,69 @@ export default function Ingredients() {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="label">Quantité achetée *</label>
-                    <input
-                      type="number"
-                      step="0.001"
-                      className="input"
-                      value={formData.quantite_achetee}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          quantite_achetee: parseFloat(e.target.value) || 0,
-                        })
-                      }
-                      required
-                      min="0"
-                    />
-                  </div>
+                  {!ingredientEnEdition && (
+                    <>
+                      <div className="md:col-span-2">
+                        <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-3 mb-4">
+                          <p className="text-sm text-blue-200">
+                            <strong>Premier achat (optionnel):</strong> Vous pouvez saisir les informations du premier achat maintenant, ou le faire plus tard dans la page "Achats & Fournisseurs".
+                          </p>
+                        </div>
+                      </div>
 
-                  <div>
-                    <label className="label">Prix d'achat total (€) *</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="input"
-                      value={formData.prix_achat_total}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          prix_achat_total: parseFloat(e.target.value) || 0,
-                        })
-                      }
-                      required
-                      min="0"
-                    />
-                  </div>
+                      <div>
+                        <label className="label">Quantité achetée</label>
+                        <input
+                          type="number"
+                          step="0.001"
+                          className="input"
+                          value={formData.quantite_achetee}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              quantite_achetee: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          min="0"
+                          placeholder="0"
+                        />
+                      </div>
 
-                  <div className="md:col-span-2">
-                    <label className="label">Fournisseur</label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={formData.fournisseur}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          fournisseur: e.target.value,
-                        })
-                      }
-                      placeholder="Ex: Metro"
-                    />
-                  </div>
+                      <div>
+                        <label className="label">Prix d'achat total (G)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="input"
+                          value={formData.prix_achat_total}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              prix_achat_total: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          min="0"
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="label">Fournisseur</label>
+                        <input
+                          type="text"
+                          className="input"
+                          value={formData.fournisseur}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              fournisseur: e.target.value,
+                            })
+                          }
+                          placeholder="Ex: Metro"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="md:col-span-2">
                     <label className="label">Notes</label>
