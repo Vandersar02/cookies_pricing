@@ -7,7 +7,7 @@
 // 1. INGRÉDIENTS
 // ============================================
 
-export type UniteAchat = "kg" | "g" | "L" | "mL" | "unité" | "paquet" | "pièce" | "boîte" | "sachet" | "cuillère" | "tasse";
+export type UniteAchat = "kg" | "g" | "L" | "mL" | "unité" | "paquet" | "pièce" | "boîte" | "sachet" | "cuillère" | "tasse" | "lb" | "oz";
 
 export type CategorieIngredient =
   | "farine"

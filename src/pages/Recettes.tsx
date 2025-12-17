@@ -484,6 +484,8 @@ export default function Recettes() {
                                 <option value="g">g</option>
                                 <option value="L">L</option>
                                 <option value="mL">mL</option>
+                                <option value="lb">lb (livres)</option>
+                                <option value="oz">oz (onces)</option>
                                 <option value="unité">unité</option>
                                 <option value="paquet">paquet</option>
                                 <option value="pièce">pièce</option>

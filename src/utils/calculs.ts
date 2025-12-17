@@ -36,6 +36,7 @@ import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
  * Note: Les facteurs de conversion sont des approximations raisonnables.
  * - Pour unités variables (pièce, boîte, sachet, paquet): facteur 1 = l'utilisateur définit le poids réel via le prix
  * - Pour volumes (cuillère, tasse): approximations standards pour usage général en pâtisserie
+ * - Pour unités impériales: lb (livres) et oz (onces) avec conversions exactes
  * - Pour meilleure précision: utiliser kg/g pour ingrédients secs et L/mL pour liquides
  */
 export function convertirEnGrammes(quantite: number, unite: string): number {
@@ -44,6 +45,8 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
     'g': 1,
     'L': 1000, // approximation pour liquides (densité ~1)
     'mL': 1,
+    'lb': 453.592, // livre (pound) = 453.592 grammes
+    'oz': 28.3495, // once (ounce) = 28.3495 grammes
     'unité': 1, // l'utilisateur définit le poids via le prix d'achat
     'paquet': 1, // l'utilisateur définit le poids via le prix d'achat
     'pièce': 1, // l'utilisateur définit le poids via le prix d'achat
@@ -54,6 +57,37 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
   };
   
   return quantite * (conversions[unite] || 1);
+}
+
+/**
+ * Convertit une quantité d'une unité vers une autre
+ * Utile pour convertir entre différentes unités (ex: lb vers kg, oz vers g, etc.)
+ */
+export function convertirUnite(
+  quantite: number,
+  uniteSource: string,
+  uniteCible: string
+): number {
+  // Convertir d'abord en grammes (unité de base)
+  const grammes = convertirEnGrammes(quantite, uniteSource);
+  
+  // Puis convertir des grammes vers l'unité cible
+  const conversionsInverses: Record<string, number> = {
+    'kg': 1000,
+    'g': 1,
+    'lb': 453.592,
+    'oz': 28.3495,
+    'L': 1000,
+    'mL': 1,
+  };
+  
+  const facteurCible = conversionsInverses[uniteCible];
+  if (facteurCible) {
+    return grammes / facteurCible;
+  }
+  
+  // Si l'unité cible n'est pas convertible, retourner la quantité en grammes
+  return grammes;
 }
 
 /**
