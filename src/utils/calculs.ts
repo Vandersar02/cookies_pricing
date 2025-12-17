@@ -12,8 +12,14 @@ import type {
   Perte,
   FormatVente,
   CalculCoutCookie,
-  CalculPricing
+  CalculPricing,
+  AchatIngredient, 
+  StatistiquesFournisseur, 
+  DepensesPeriode,
+  PeriodeAnalyse,
+  RecommandationReapprovisionnement
 } from '@/types';
+import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
 // ============================================
 // 1. CONVERSIONS D'UNITÉS
@@ -481,4 +487,183 @@ export function arrondir(valeur: number, decimales = 2): number {
  */
 export function genererID(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// ============================================
+// 11. ANALYTICS ACHATS & FOURNISSEURS
+// ============================================
+
+/**
+ * Calcule les statistiques par fournisseur
+ */
+export function calculerStatistiquesFournisseur(
+  achats: AchatIngredient[],
+  fournisseur: string
+): StatistiquesFournisseur {
+  const achatsFournisseur = achats.filter(a => a.fournisseur === fournisseur);
+  
+  if (achatsFournisseur.length === 0) {
+    return {
+      fournisseur,
+      nombre_achats: 0,
+      montant_total: 0,
+      montant_moyen: 0,
+      ingredients: [],
+    };
+  }
+
+  const montantTotal = achatsFournisseur.reduce((sum, a) => sum + a.prix_total, 0);
+  const ingredientsUniques = [...new Set(achatsFournisseur.map(a => a.ingredient_nom))];
+  
+  // Trier les achats par date
+  const achatsTries = [...achatsFournisseur].sort(
+    (a, b) => new Date(a.date_achat).getTime() - new Date(b.date_achat).getTime()
+  );
+  
+  const premierAchat = achatsTries[0]?.date_achat;
+  const dernierAchat = achatsTries[achatsTries.length - 1]?.date_achat;
+  
+  // Calculer la fréquence moyenne en jours
+  let frequenceMoyenne: number | undefined;
+  if (achatsTries.length >= 2 && premierAchat && dernierAchat) {
+    const joursTotal = differenceInDays(
+      new Date(dernierAchat),
+      new Date(premierAchat)
+    );
+    frequenceMoyenne = Math.round(joursTotal / (achatsTries.length - 1));
+  }
+
+  return {
+    fournisseur,
+    nombre_achats: achatsFournisseur.length,
+    montant_total: montantTotal,
+    montant_moyen: montantTotal / achatsFournisseur.length,
+    dernier_achat: dernierAchat,
+    premier_achat: premierAchat,
+    ingredients: ingredientsUniques,
+    frequence_jours: frequenceMoyenne,
+  };
+}
+
+/**
+ * Regroupe les achats par période
+ */
+export function grouperAchatsParPeriode(
+  achats: AchatIngredient[],
+  periode: PeriodeAnalyse
+): DepensesPeriode[] {
+  const groupes = new Map<string, AchatIngredient[]>();
+
+  achats.forEach(achat => {
+    const date = new Date(achat.date_achat);
+    let cle: string;
+
+    switch (periode) {
+      case 'hebdomadaire':
+        cle = format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-\'W\'II');
+        break;
+      case 'mensuelle':
+        cle = format(startOfMonth(date), 'yyyy-MM');
+        break;
+      case 'trimestrielle':
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
+        cle = `${date.getFullYear()}-Q${quarter}`;
+        break;
+      case 'annuelle':
+        cle = date.getFullYear().toString();
+        break;
+    }
+
+    if (!groupes.has(cle)) {
+      groupes.set(cle, []);
+    }
+    const groupe = groupes.get(cle);
+    if (groupe) {
+      groupe.push(achat);
+    }
+  });
+
+  // Convertir en tableau et trier par période
+  return Array.from(groupes.entries())
+    .map(([periode, achats]) => ({
+      periode,
+      montant: achats.reduce((sum, a) => sum + a.prix_total, 0),
+      nombre_achats: achats.length,
+      fournisseurs: [...new Set(achats.map(a => a.fournisseur))],
+    }))
+    .sort((a, b) => a.periode.localeCompare(b.periode));
+}
+
+/**
+ * Génère des recommandations de réapprovisionnement
+ */
+export function genererRecommandationsReapprovisionnement(
+  ingredients: Ingredient[],
+  achats: AchatIngredient[]
+): RecommandationReapprovisionnement[] {
+  const recommandations: RecommandationReapprovisionnement[] = [];
+
+  ingredients.forEach(ingredient => {
+    // Ne générer une recommandation que si le stock est défini
+    if (ingredient.quantite_stock === undefined || ingredient.stock_minimum === undefined) {
+      return;
+    }
+
+    const stockActuel = ingredient.quantite_stock;
+    const stockMinimum = ingredient.stock_minimum;
+
+    // Si le stock est suffisant, pas de recommandation
+    if (stockActuel > stockMinimum) {
+      return;
+    }
+
+    // Trouver le fournisseur habituel (celui avec le plus d'achats)
+    const achatsIngredient = achats.filter(a => a.ingredient_id === ingredient.id);
+    const fournisseurCounts = new Map<string, number>();
+    
+    achatsIngredient.forEach(achat => {
+      const count = fournisseurCounts.get(achat.fournisseur) || 0;
+      fournisseurCounts.set(achat.fournisseur, count + 1);
+    });
+
+    let fournisseurHabituel: string | undefined;
+    let maxCount = 0;
+    fournisseurCounts.forEach((count, fournisseur) => {
+      if (count > maxCount) {
+        maxCount = count;
+        fournisseurHabituel = fournisseur;
+      }
+    });
+
+    // Calculer le prix moyen
+    const prixMoyen = achatsIngredient.length > 0
+      ? achatsIngredient.reduce((sum, a) => sum + a.prix_unitaire, 0) / achatsIngredient.length
+      : ingredient.prix_par_unite;
+
+    // Déterminer l'urgence
+    let urgence: "faible" | "moyenne" | "haute" | "critique";
+    if (stockActuel === 0) {
+      urgence = "critique";
+    } else if (stockActuel <= stockMinimum * 0.3) {
+      urgence = "haute";
+    } else if (stockActuel <= stockMinimum * 0.6) {
+      urgence = "moyenne";
+    } else {
+      urgence = "faible";
+    }
+
+    recommandations.push({
+      ingredient_id: ingredient.id,
+      ingredient_nom: ingredient.nom,
+      stock_actuel: stockActuel,
+      stock_minimum: stockMinimum,
+      fournisseur_habituel: fournisseurHabituel,
+      prix_moyen: prixMoyen,
+      urgence,
+    });
+  });
+
+  // Trier par urgence (critique en premier)
+  const ordreUrgence = { critique: 0, haute: 1, moyenne: 2, faible: 3 };
+  return recommandations.sort((a, b) => ordreUrgence[a.urgence] - ordreUrgence[b.urgence]);
 }
