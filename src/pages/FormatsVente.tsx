@@ -139,6 +139,7 @@ export default function FormatsVente() {
   // Recalculer au montage
   useEffect(() => {
     formatsVente.forEach((f) => recalculerFormatVente(f.id));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -90,6 +90,7 @@ export default function Recettes() {
   const modifierIngredientRecette = (
     index: number,
     champ: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     valeur: any
   ) => {
     const nouveauxIngredients = [...formData.ingredients];

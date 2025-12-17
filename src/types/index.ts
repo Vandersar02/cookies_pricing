@@ -38,13 +38,11 @@ export interface Ingredient {
   nom: string;
   categorie: string; // Changé pour accepter toute chaîne de caractères
 
-  // Achat
+  // Unité de base pour cet ingrédient
   unite_achat: UniteAchat;
-  quantite_achetee: number;
-  prix_achat_total: number;
 
-  // Calculés automatiquement
-  prix_par_unite: number; // = prix_achat_total / quantite_achetee
+  // Calculés automatiquement depuis l'historique des achats
+  prix_par_unite: number; // Prix moyen ou du dernier achat
   prix_par_gramme?: number; // conversion facilitée
 
   // Gestion de stock
@@ -53,8 +51,6 @@ export interface Ingredient {
   stock_maximum?: number; // Stock maximum recommandé
 
   // Traçabilité
-  fournisseur?: string;
-  date_achat?: Date;
   date_expiration?: Date;
   notes?: string;
 

@@ -20,8 +20,8 @@ import type {
 
 import {
   genererID,
-  calculerPrixParUnite,
   calculerPrixParGramme,
+  calculerPrixParUniteDepuisAchats,
   calculerRecetteComplete,
   calculerCoutEmballageParCookie,
   calculerTotalCharges,
@@ -62,6 +62,8 @@ interface AppState {
   ) => void;
   modifierIngredient: (id: string, modifications: Partial<Ingredient>) => void;
   supprimerIngredient: (id: string) => void;
+  recalculerPrixIngredient: (id: string) => void;
+  recalculerTousPrixIngredients: () => void;
 
   // ============ ACTIONS RECETTES ============
   ajouterRecette: (
@@ -193,22 +195,8 @@ export const useStore = create<AppState>()(
         const nouvelIngredient: Ingredient = {
           ...ingredient,
           id: genererID(),
-          prix_par_unite: calculerPrixParUnite({
-            ...ingredient,
-            id: "",
-            prix_par_unite: 0,
-            actif: true,
-            date_creation: new Date(),
-            derniere_modification: new Date(),
-          }),
-          prix_par_gramme: calculerPrixParGramme({
-            ...ingredient,
-            id: "",
-            prix_par_unite: 0,
-            actif: true,
-            date_creation: new Date(),
-            derniere_modification: new Date(),
-          }),
+          prix_par_unite: 0, // Sera calculé depuis les achats
+          prix_par_gramme: 0,
           actif: true,
           date_creation: new Date(),
           derniere_modification: new Date(),
@@ -227,15 +215,10 @@ export const useStore = create<AppState>()(
           ingredients: state.ingredients.map((ing: Ingredient) => {
             if (ing.id !== id) return ing;
 
-            const modifie = {
+            return {
               ...ing,
               ...modifications,
               derniere_modification: new Date(),
-            };
-            return {
-              ...modifie,
-              prix_par_unite: calculerPrixParUnite(modifie),
-              prix_par_gramme: calculerPrixParGramme(modifie),
             };
           }),
         }));
@@ -247,6 +230,51 @@ export const useStore = create<AppState>()(
         set((state: AppState) => ({
           ingredients: state.ingredients.filter((ing: Ingredient) => ing.id !== id),
         }));
+      },
+
+      recalculerPrixIngredient: (id: string) => {
+        const { achats } = get();
+        
+        set((state: AppState) => ({
+          ingredients: state.ingredients.map((ing: Ingredient) => {
+            if (ing.id !== id) return ing;
+
+            const prixParUnite = calculerPrixParUniteDepuisAchats(id, achats);
+            const prixParGramme = prixParUnite > 0 ? calculerPrixParGramme({
+              ...ing,
+              prix_par_unite: prixParUnite,
+            }) : 0;
+
+            return {
+              ...ing,
+              prix_par_unite: prixParUnite,
+              prix_par_gramme: prixParGramme,
+            };
+          }),
+        }));
+      },
+
+      recalculerTousPrixIngredients: () => {
+        const { achats } = get();
+        
+        // Batch update all ingredient prices in a single state update
+        set((state: AppState) => ({
+          ingredients: state.ingredients.map((ing: Ingredient) => {
+            const prixParUnite = calculerPrixParUniteDepuisAchats(ing.id, achats);
+            const prixParGramme = prixParUnite > 0 ? calculerPrixParGramme({
+              ...ing,
+              prix_par_unite: prixParUnite,
+            }) : 0;
+
+            return {
+              ...ing,
+              prix_par_unite: prixParUnite,
+              prix_par_gramme: prixParGramme,
+            };
+          }),
+        }));
+        
+        get().recalculerTousFormatsVente();
       },
 
       // ============ ACTIONS RECETTES ============
@@ -540,12 +568,24 @@ export const useStore = create<AppState>()(
         set((state: AppState) => ({
           achats: [...state.achats, nouvelAchat],
         }));
+
+        // Recalculer le prix de l'ingrédient concerné
+        get().recalculerPrixIngredient(achat.ingredient_id);
+        get().recalculerTousFormatsVente();
       },
 
       supprimerAchat: (id: string) => {
+        const achat = get().achats.find((a: AchatIngredient) => a.id === id);
+        
         set((state: AppState) => ({
           achats: state.achats.filter((a: AchatIngredient) => a.id !== id),
         }));
+
+        // Recalculer le prix de l'ingrédient concerné
+        if (achat) {
+          get().recalculerPrixIngredient(achat.ingredient_id);
+          get().recalculerTousFormatsVente();
+        }
       },
 
       getAchatsByFournisseur: (fournisseur: string) => {
@@ -609,11 +649,8 @@ export const useStore = create<AppState>()(
             nom: "Farine T55",
             categorie: "farine",
             unite_achat: "kg",
-            quantite_achetee: 5,
-            prix_achat_total: 4.5,
             prix_par_unite: 0.9,
             prix_par_gramme: 0.0009,
-            fournisseur: "Metro",
             actif: true,
             date_creation: new Date(),
             derniere_modification: new Date(),
@@ -623,8 +660,6 @@ export const useStore = create<AppState>()(
             nom: "Sucre blanc",
             categorie: "sucre",
             unite_achat: "kg",
-            quantite_achetee: 2,
-            prix_achat_total: 2.8,
             prix_par_unite: 1.4,
             prix_par_gramme: 0.0014,
             actif: true,
@@ -636,8 +671,6 @@ export const useStore = create<AppState>()(
             nom: "Beurre doux",
             categorie: "gras",
             unite_achat: "kg",
-            quantite_achetee: 1,
-            prix_achat_total: 8.0,
             prix_par_unite: 8.0,
             prix_par_gramme: 0.008,
             actif: true,
@@ -649,8 +682,6 @@ export const useStore = create<AppState>()(
             nom: "Œufs",
             categorie: "œufs",
             unite_achat: "unité",
-            quantite_achetee: 12,
-            prix_achat_total: 4.2,
             prix_par_unite: 0.35,
             actif: true,
             date_creation: new Date(),
@@ -661,8 +692,6 @@ export const useStore = create<AppState>()(
             nom: "Pépites chocolat noir",
             categorie: "chocolat",
             unite_achat: "kg",
-            quantite_achetee: 1,
-            prix_achat_total: 12.0,
             prix_par_unite: 12.0,
             prix_par_gramme: 0.012,
             actif: true,
@@ -671,7 +700,69 @@ export const useStore = create<AppState>()(
           },
         ];
 
-        set({ ingredients: demoIngredients });
+        // Achats de démonstration correspondants
+        const demoAchats: AchatIngredient[] = [
+          {
+            id: "achat-1",
+            ingredient_id: "ing-1",
+            ingredient_nom: "Farine T55",
+            fournisseur: "Metro",
+            quantite: 5,
+            unite: "kg",
+            prix_total: 4.5,
+            prix_unitaire: 0.9,
+            date_achat: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Il y a 7 jours
+          },
+          {
+            id: "achat-2",
+            ingredient_id: "ing-2",
+            ingredient_nom: "Sucre blanc",
+            fournisseur: "Metro",
+            quantite: 2,
+            unite: "kg",
+            prix_total: 2.8,
+            prix_unitaire: 1.4,
+            date_achat: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // Il y a 5 jours
+          },
+          {
+            id: "achat-3",
+            ingredient_id: "ing-3",
+            ingredient_nom: "Beurre doux",
+            fournisseur: "Grossiste Bio",
+            quantite: 1,
+            unite: "kg",
+            prix_total: 8.0,
+            prix_unitaire: 8.0,
+            date_achat: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Il y a 3 jours
+          },
+          {
+            id: "achat-4",
+            ingredient_id: "ing-4",
+            ingredient_nom: "Œufs",
+            fournisseur: "Ferme locale",
+            quantite: 12,
+            unite: "unité",
+            prix_total: 4.2,
+            prix_unitaire: 0.35,
+            date_achat: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Il y a 2 jours
+          },
+          {
+            id: "achat-5",
+            ingredient_id: "ing-5",
+            ingredient_nom: "Pépites chocolat noir",
+            fournisseur: "Valrhona",
+            quantite: 1,
+            unite: "kg",
+            prix_total: 12.0,
+            prix_unitaire: 12.0,
+            date_achat: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Hier
+          },
+        ];
+
+        set({ 
+          ingredients: demoIngredients,
+          achats: demoAchats,
+        });
 
         // Le reste des données demo sera chargé après
         console.log("Données démo chargées");
