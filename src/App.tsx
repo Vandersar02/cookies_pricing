@@ -148,29 +148,127 @@ function App() {
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">
-          <ul className="space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => {
-                      changerPage(item.id);
-                      setMenuMobileOuvert(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
-                      pageActive === item.id
-                        ? "bg-primary-700 text-primary-100 font-medium"
-                        : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="truncate">{item.nom}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="space-y-6">
+            {/* Section: Vue d'ensemble */}
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+                Vue d'ensemble
+              </h3>
+              <ul className="space-y-1">
+                {navigation.slice(0, 1).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => {
+                          changerPage(item.id);
+                          setMenuMobileOuvert(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                          pageActive === item.id
+                            ? "bg-primary-700 text-primary-100 font-medium"
+                            : "text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="truncate">{item.nom}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Section: Gestion */}
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+                Gestion
+              </h3>
+              <ul className="space-y-1">
+                {navigation.slice(1, 6).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => {
+                          changerPage(item.id);
+                          setMenuMobileOuvert(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                          pageActive === item.id
+                            ? "bg-primary-700 text-primary-100 font-medium"
+                            : "text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="truncate">{item.nom}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Section: Production & Vente */}
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+                Production & Vente
+              </h3>
+              <ul className="space-y-1">
+                {navigation.slice(6, 10).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => {
+                          changerPage(item.id);
+                          setMenuMobileOuvert(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                          pageActive === item.id
+                            ? "bg-primary-700 text-primary-100 font-medium"
+                            : "text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="truncate">{item.nom}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Section: Analyses & Outils */}
+            <div>
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+                Analyses & Outils
+              </h3>
+              <ul className="space-y-1">
+                {navigation.slice(10).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => {
+                          changerPage(item.id);
+                          setMenuMobileOuvert(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                          pageActive === item.id
+                            ? "bg-primary-700 text-primary-100 font-medium"
+                            : "text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="truncate">{item.nom}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </nav>
 
         {/* Alertes */}
