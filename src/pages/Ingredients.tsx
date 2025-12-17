@@ -143,27 +143,27 @@ export default function Ingredients() {
             </button>
           </div>
         ) : (
-          <div className="card">
-            <div className="overflow-x-auto">
+          <div className="card overflow-hidden">
+            <div className="table-container">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-700">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Nom
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Catégorie
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Unité
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Prix/unité
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Stock actuel
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">
+                    <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">
                       Actions
                     </th>
                   </tr>
@@ -174,38 +174,40 @@ export default function Ingredients() {
                       key={ingredient.id}
                       className="border-b border-slate-700 hover:bg-slate-800"
                     >
-                      <td className="py-3 px-4 font-medium text-slate-100">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-medium text-slate-100 text-sm sm:text-base">
                         {ingredient.nom}
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/30 text-blue-200">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4">
+                        <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/30 text-blue-200 whitespace-nowrap">
                           {ingredient.categorie}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-slate-300">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-300 text-sm sm:text-base whitespace-nowrap">
                         {ingredient.unite_achat}
                       </td>
-                      <td className="py-3 px-4 text-right font-medium text-green-400">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-right font-medium text-green-400 text-sm sm:text-base whitespace-nowrap">
                         {ingredient.prix_par_unite > 0 
                           ? `${formaterEuro(ingredient.prix_par_unite)}/${ingredient.unite_achat}`
                           : "Aucun achat"}
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-300">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-right text-slate-300 text-sm sm:text-base whitespace-nowrap">
                         {ingredient.quantite_stock !== undefined 
                           ? `${ingredient.quantite_stock} ${ingredient.unite_achat}`
                           : "-"}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-2.5 sm:py-3 px-3 sm:px-4">
+                        <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <button
                             onClick={() => ouvrirDialog(ingredient)}
-                            className="p-1.5 text-slate-400 hover:text-primary-400 hover:bg-slate-700 rounded"
+                            className="p-2 text-slate-400 hover:text-primary-400 hover:bg-slate-700 rounded touch-target"
+                            aria-label="Modifier"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleSupprimer(ingredient.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-900/30 rounded"
+                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/30 rounded touch-target"
+                            aria-label="Supprimer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -221,15 +223,15 @@ export default function Ingredients() {
 
         {/* Dialog Ajout/Édition */}
         {dialogOuvert && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-slate-700">
-                <h2 className="text-2xl font-bold text-slate-100">
+              <div className="p-4 sm:p-6 border-b border-slate-700">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-100">
                   {ingredientEnEdition ? "Modifier" : "Nouvel"} ingrédient
                 </h2>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="label">Nom de l'ingrédient *</label>
@@ -343,7 +345,7 @@ export default function Ingredients() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 mt-6">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 mt-6">
                   <button
                     type="button"
                     onClick={fermerDialog}

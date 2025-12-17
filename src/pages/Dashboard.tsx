@@ -183,18 +183,18 @@ export default function Dashboard() {
 
         {/* Alertes */}
         {alertesNonResolues.length > 0 && (
-          <div className="mb-6 bg-red-900/30 border border-red-700 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-red-100 mb-2">
+          <div className="mb-6 bg-red-900/30 border border-red-700 rounded-lg p-3 sm:p-4">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-red-100 mb-2 text-sm sm:text-base">
                   {alertesNonResolues.length} alerte
                   {alertesNonResolues.length > 1 ? "s" : ""} nécessit
                   {alertesNonResolues.length > 1 ? "ent" : "e"} votre attention
                 </h3>
                 <ul className="space-y-1">
                   {alertesNonResolues.slice(0, 3).map((alerte) => (
-                    <li key={alerte.id} className="text-sm text-red-200">
+                    <li key={alerte.id} className="text-xs sm:text-sm text-red-200 break-words">
                       • {alerte.message}
                     </li>
                   ))}
@@ -205,20 +205,20 @@ export default function Dashboard() {
         )}
 
         {/* Cartes statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div key={index} className="card">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-400 mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold text-slate-100">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-slate-400 mb-1 truncate">{stat.label}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-slate-100">
                       {stat.valeur}
                     </p>
                   </div>
-                  <div className={`${stat.color} p-3 rounded-lg`}>
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className={`${stat.color} p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2`}>
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                 </div>
               </div>
@@ -229,27 +229,27 @@ export default function Dashboard() {
         {/* Métriques financières */}
         {formatsVente.length > 0 && (
           <>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-slate-100 mb-4">
+            <div className="mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-100 mb-4">
                 Vue financière
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {statsFinancieres.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                   <div key={index} className="card">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-slate-400 mb-1">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm text-slate-400 mb-1 truncate">
                           {stat.label}
                         </p>
-                        <p className="text-2xl font-bold text-slate-100">
+                        <p className="text-xl sm:text-2xl font-bold text-slate-100">
                           {stat.valeur}
                         </p>
                       </div>
-                      <div className={`${stat.color} p-3 rounded-lg`}>
-                        <Icon className="w-6 h-6 text-white" />
+                      <div className={`${stat.color} p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2`}>
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
                   </div>
