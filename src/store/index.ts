@@ -534,7 +534,7 @@ export const useStore = create<AppState>()(
         const nouvelAchat: AchatIngredient = {
           ...achat,
           id: genererID(),
-          prix_unitaire: achat.prix_total / achat.quantite,
+          prix_unitaire: achat.quantite > 0 ? achat.prix_total / achat.quantite : 0,
         };
 
         set((state: AppState) => ({
