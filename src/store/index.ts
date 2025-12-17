@@ -1,10 +1,11 @@
 /**
  * STORE ZUSTAND - GESTION GLOBALE DE L'ÉTAT
- * Avec persistence localStorage
+ * Avec persistence hybride localStorage + Supabase
  */
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { hybridStorage } from "@/lib/storage";
 import type {
   Ingredient,
   Recette,
@@ -1066,6 +1067,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "cookie-pricing-storage", // Nom de la clé dans localStorage
+      storage: hybridStorage, // Utiliser le storage hybride localStorage + Supabase
       partialize: (state: AppState) => ({
         // On sauvegarde tout sauf la page active
         ingredients: state.ingredients,
