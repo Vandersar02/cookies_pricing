@@ -26,6 +26,7 @@ import Achats from "@/pages/Achats";
 import ComparateurMarges from "@/pages/ComparateurMarges";
 import Optimisations from "@/pages/Optimisations";
 import Production from "@/pages/Production";
+import PricingPromotions from "@/pages/PricingPromotions";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -41,6 +42,7 @@ function App() {
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
     { id: "production", nom: "Production", icon: Factory },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
+    { id: "pricing", nom: "Pricing & Promos", icon: DollarSign },
     { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
     { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
@@ -66,6 +68,8 @@ function App() {
         return <Production />;
       case "formats":
         return <FormatsVente />;
+      case "pricing":
+        return <PricingPromotions />;
       case "comparateur":
         return <ComparateurMarges />;
       case "optimisations":
