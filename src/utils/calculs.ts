@@ -44,8 +44,8 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
     'pièce': 1,
     'boîte': 1,
     'sachet': 1,
-    'cuillère': 15, // approximation pour cuillère à soupe
-    'tasse': 240, // approximation pour tasse (240g)
+    'cuillère': 15, // approximation pour cuillère à soupe (~15g pour ingrédients secs)
+    'tasse': 240, // approximation pour tasse (~240g/mL pour eau et ingrédients similaires)
   };
   
   return quantite * (conversions[unite] || 1);
