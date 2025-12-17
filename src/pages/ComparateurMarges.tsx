@@ -22,11 +22,11 @@ export default function ComparateurMarges() {
       (format.cout_pertes || 0)
     : 0;
 
-  const coutParCookieSansEmballage = format
+  const coutParCookieSansEmballage = format && format.quantite_cookies > 0
     ? coutSansEmballage / format.quantite_cookies
     : 0;
 
-  const coutParCookieAvecEmballage = format
+  const coutParCookieAvecEmballage = format && format.quantite_cookies > 0
     ? format.cout_total_revient / format.quantite_cookies
     : 0;
 
@@ -212,7 +212,7 @@ export default function ComparateurMarges() {
                     {margesAComparer.map((marge) => {
                       const prixVente = calculerPrixVenteAvecMarge(format.cout_total_revient, marge);
                       const benefice = prixVente - format.cout_total_revient;
-                      const prixParCookie = prixVente / format.quantite_cookies;
+                      const prixParCookie = format.quantite_cookies > 0 ? prixVente / format.quantite_cookies : 0;
                       const estMargeActuelle = Math.abs(format.marge_reelle_pourcentage - marge) < 1;
 
                       let recommandation = "";
