@@ -16,12 +16,13 @@ export type CategorieIngredient =
   | "œufs"
   | "additif"
   | "chocolat"
-  | "autre";
+  | "autre"
+  | string; // Permet les catégories personnalisées
 
 export interface Ingredient {
   id: string;
   nom: string;
-  categorie: CategorieIngredient;
+  categorie: string; // Changé pour accepter toute chaîne de caractères
 
   // Achat
   unite_achat: UniteAchat;

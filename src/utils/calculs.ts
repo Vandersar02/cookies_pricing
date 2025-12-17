@@ -452,12 +452,12 @@ export function simulerImpactPrix(
 // ============================================
 
 /**
- * Formate un nombre en euros
+ * Formate un nombre en gourdes haïtiennes (HTG)
  */
 export function formaterEuro(montant: number): string {
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat('fr-HT', {
     style: 'currency',
-    currency: 'EUR',
+    currency: 'HTG',
   }).format(montant);
 }
 

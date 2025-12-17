@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useStore } from "@/store";
 import { Plus, Edit2, Trash2, Package } from "lucide-react";
 import { formaterEuro } from "@/utils/calculs";
-import type { Ingredient, UniteAchat, CategorieIngredient } from "@/types";
+import type { Ingredient, UniteAchat } from "@/types";
 
 export default function Ingredients() {
   const {
@@ -10,14 +10,18 @@ export default function Ingredients() {
     ajouterIngredient,
     modifierIngredient,
     supprimerIngredient,
+    categoriesPersonnalisees,
+    ajouterCategoriePersonnalisee,
   } = useStore();
   const [dialogOuvert, setDialogOuvert] = useState(false);
   const [ingredientEnEdition, setIngredientEnEdition] =
     useState<Ingredient | null>(null);
+  const [nouvelleCategorie, setNouvelleCategorie] = useState("");
+  const [afficherAjoutCategorie, setAfficherAjoutCategorie] = useState(false);
 
   const [formData, setFormData] = useState({
     nom: "",
-    categorie: "autre" as CategorieIngredient,
+    categorie: "autre",
     unite_achat: "kg" as UniteAchat,
     quantite_achetee: 0,
     prix_achat_total: 0,
@@ -75,7 +79,7 @@ export default function Ingredients() {
     }
   };
 
-  const categoriesOptions: CategorieIngredient[] = [
+  const categoriesDeBase = [
     "farine",
     "sucre",
     "gras",
@@ -85,7 +89,19 @@ export default function Ingredients() {
     "autre",
   ];
 
+  // Combiner les catégories de base avec les catégories personnalisées
+  const toutesCategories = [...categoriesDeBase, ...categoriesPersonnalisees];
+
   const unitesOptions: UniteAchat[] = ["kg", "g", "L", "mL", "unité", "paquet"];
+
+  const handleAjouterCategorie = () => {
+    if (nouvelleCategorie.trim()) {
+      ajouterCategoriePersonnalisee(nouvelleCategorie.trim());
+      setFormData({ ...formData, categorie: nouvelleCategorie.trim().toLowerCase() });
+      setNouvelleCategorie("");
+      setAfficherAjoutCategorie(false);
+    }
+  };
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
@@ -231,22 +247,66 @@ export default function Ingredients() {
 
                   <div>
                     <label className="label">Catégorie</label>
-                    <select
-                      className="input"
-                      value={formData.categorie}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          categorie: e.target.value as CategorieIngredient,
-                        })
-                      }
-                    >
-                      {categoriesOptions.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex gap-2">
+                      <select
+                        className="input flex-1"
+                        value={formData.categorie}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            categorie: e.target.value,
+                          })
+                        }
+                      >
+                        {toutesCategories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setAfficherAjoutCategorie(!afficherAjoutCategorie)}
+                        className="btn-secondary px-3"
+                        title="Ajouter une catégorie"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {afficherAjoutCategorie && (
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          type="text"
+                          className="input flex-1"
+                          placeholder="Nouvelle catégorie"
+                          value={nouvelleCategorie}
+                          onChange={(e) => setNouvelleCategorie(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAjouterCategorie();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAjouterCategorie}
+                          className="btn-primary px-4"
+                        >
+                          Ajouter
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAfficherAjoutCategorie(false);
+                            setNouvelleCategorie("");
+                          }}
+                          className="btn-secondary px-4"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div>
