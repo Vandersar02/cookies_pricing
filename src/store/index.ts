@@ -38,9 +38,14 @@ interface AppState {
   formatsVente: FormatVente[];
   simulations: Simulation[];
   alertes: AlerteRentabilite[];
+  categoriesPersonnalisees: string[]; // Catégories personnalisées ajoutées par l'utilisateur
 
   // ============ UI ============
   pageActive: string;
+
+  // ============ ACTIONS CATÉGORIES ============
+  ajouterCategoriePersonnalisee: (categorie: string) => void;
+  supprimerCategoriePersonnalisee: (categorie: string) => void;
 
   // ============ ACTIONS INGRÉDIENTS ============
   ajouterIngredient: (
@@ -149,7 +154,30 @@ export const useStore = create<AppState>()(
       formatsVente: [],
       simulations: [],
       alertes: [],
+      categoriesPersonnalisees: [],
       pageActive: "dashboard",
+
+      // ============ ACTIONS CATÉGORIES ============
+      ajouterCategoriePersonnalisee: (categorie) => {
+        set((state) => {
+          const categorieNormalisee = categorie.toLowerCase().trim();
+          // Vérifier si la catégorie n'existe pas déjà
+          if (state.categoriesPersonnalisees.includes(categorieNormalisee)) {
+            return state;
+          }
+          return {
+            categoriesPersonnalisees: [...state.categoriesPersonnalisees, categorieNormalisee],
+          };
+        });
+      },
+
+      supprimerCategoriePersonnalisee: (categorie) => {
+        set((state) => ({
+          categoriesPersonnalisees: state.categoriesPersonnalisees.filter(
+            (cat) => cat !== categorie
+          ),
+        }));
+      },
 
       // ============ ACTIONS INGRÉDIENTS ============
       ajouterIngredient: (ingredient) => {
