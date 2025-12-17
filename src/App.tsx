@@ -29,6 +29,7 @@ import Optimisations from "@/pages/Optimisations";
 import Production from "@/pages/Production";
 import PricingPromotions from "@/pages/PricingPromotions";
 import ExportsLabels from "@/pages/ExportsLabels";
+import SyncStatus from "@/components/SyncStatus";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -129,17 +130,20 @@ function App() {
       `}
       >
         <div className="p-6 border-b border-slate-700">
-          <div className="flex items-center gap-2">
-            <img
-              src="/cookies.png"
-              alt="Logo"
-              className="w-8 h-8 object-contain"
-            />
-            <div>
-              <h1 className="text-xl font-bold text-slate-100">Tamy Cookies</h1>
-              <p className="text-xs text-slate-400">Calcul des coûts</p>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <img
+                src="/cookies.png"
+                alt="Logo"
+                className="w-8 h-8 object-contain"
+              />
+              <div>
+                <h1 className="text-xl font-bold text-slate-100">Tamy Cookies</h1>
+                <p className="text-xs text-slate-400">Calcul des coûts</p>
+              </div>
             </div>
           </div>
+          <SyncStatus />
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">

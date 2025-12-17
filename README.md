@@ -62,4 +62,20 @@ PROFIT = PRIX VENTE - COÛT RÉEL
 - Vite
 - Tailwind CSS
 - Zustand (state management)
+- Supabase (synchronisation cloud - optionnel)
 - Lucide Icons
+
+## ☁️ Synchronisation Multi-Appareils
+
+Le logiciel supporte maintenant la **synchronisation automatique** de vos données entre plusieurs appareils !
+
+- **Sans configuration** : Fonctionne en mode local uniquement (comme avant)
+- **Avec Supabase** : Synchronisation automatique entre vos appareils
+
+👉 **[Guide de configuration de la base de données](./SETUP_DATABASE.md)**
+
+### Avantages
+- ✅ Accédez à vos données depuis n'importe quel ordinateur
+- ✅ Sauvegarde automatique dans le cloud
+- ✅ Fonctionne aussi hors ligne
+- ✅ Gratuit avec Supabase
