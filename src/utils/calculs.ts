@@ -32,6 +32,11 @@ import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
 /**
  * Convertit une quantité en grammes
+ * 
+ * Note: Les facteurs de conversion sont des approximations raisonnables.
+ * - Pour unités variables (pièce, boîte, sachet, paquet): facteur 1 = l'utilisateur définit le poids réel via le prix
+ * - Pour volumes (cuillère, tasse): approximations standards pour usage général en pâtisserie
+ * - Pour meilleure précision: utiliser kg/g pour ingrédients secs et L/mL pour liquides
  */
 export function convertirEnGrammes(quantite: number, unite: string): number {
   const conversions: Record<string, number> = {
@@ -39,13 +44,13 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
     'g': 1,
     'L': 1000, // approximation pour liquides (densité ~1)
     'mL': 1,
-    'unité': 1,
-    'paquet': 1,
-    'pièce': 1,
-    'boîte': 1,
-    'sachet': 1,
-    'cuillère': 15, // approximation pour cuillère à soupe (~15g pour ingrédients secs)
-    'tasse': 240, // approximation pour tasse (~240g/mL pour eau et ingrédients similaires)
+    'unité': 1, // l'utilisateur définit le poids via le prix d'achat
+    'paquet': 1, // l'utilisateur définit le poids via le prix d'achat
+    'pièce': 1, // l'utilisateur définit le poids via le prix d'achat
+    'boîte': 1, // l'utilisateur définit le poids via le prix d'achat
+    'sachet': 1, // l'utilisateur définit le poids via le prix d'achat
+    'cuillère': 15, // approximation cuillère à soupe (~15g pour ingrédients secs)
+    'tasse': 240, // approximation tasse standard (~240g/mL pour eau et ingrédients similaires)
   };
   
   return quantite * (conversions[unite] || 1);
