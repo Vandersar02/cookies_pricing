@@ -949,3 +949,165 @@ export function comparerFournisseursPourIngredients(
 
   return comparaisons.sort((a, b) => b.economie_annuelle_estimee - a.economie_annuelle_estimee);
 }
+
+// ============================================
+// PHASE 3 - PRICING & PROMOTIONS
+// ============================================
+
+import type { AnalyseSensibilite, Promotion, FormatVente as FormatVenteType } from "@/types";
+
+/**
+ * Analyse de sensibilité des prix
+ * Calcule l'impact de variations de prix sur le profit
+ */
+export function calculerAnalyseSensibilite(
+  format: FormatVenteType,
+  volumeVentesActuel: number = 100, // Volume de ventes actuel (unités/mois)
+  elasticitePrix: number = -1.5 // Élasticité par défaut (élastique)
+): AnalyseSensibilite {
+  const prixActuel = format.prix_vente_pratique || format.prix_vente_recommande;
+  const coutActuel = format.cout_total_revient;
+  const margeActuelle = format.marge_reelle_pourcentage;
+
+  // Variations de prix à tester : -15%, -10%, -5%, 0, +5%, +10%, +15%
+  const variations = [-15, -10, -5, 0, 5, 10, 15];
+
+  const scenarios = variations.map((variation) => {
+    const nouveauPrix = prixActuel * (1 + variation / 100);
+    
+    // Estimer l'impact sur le volume avec l'élasticité
+    // Si élasticité = -1.5 et prix augmente de 10%, volume diminue de 15%
+    const variationVolume = elasticitePrix * variation;
+    const estimationVolume = Math.max(0, volumeVentesActuel * (1 + variationVolume / 100));
+    
+    const chiffreAffaires = nouveauPrix * estimationVolume;
+    const coutTotal = coutActuel * estimationVolume;
+    const profitTotal = chiffreAffaires - coutTotal;
+    
+    const profitActuel = (prixActuel - coutActuel) * volumeVentesActuel;
+    const variationProfit = profitTotal - profitActuel;
+
+    return {
+      variation_pourcentage: variation,
+      nouveau_prix: nouveauPrix,
+      estimation_volume: Math.round(estimationVolume),
+      chiffre_affaires: chiffreAffaires,
+      profit_total: profitTotal,
+      variation_profit: variationProfit,
+    };
+  });
+
+  // Trouver le scénario optimal (profit maximum)
+  const meilleurScenario = scenarios.reduce((max, scenario) =>
+    scenario.profit_total > max.profit_total ? scenario : max
+  );
+
+  const recommandation =
+    meilleurScenario.variation_pourcentage === 0
+      ? "Le prix actuel semble optimal"
+      : meilleurScenario.variation_pourcentage > 0
+      ? `Augmenter le prix de ${meilleurScenario.variation_pourcentage}% pourrait maximiser le profit (+${formaterEuro(meilleurScenario.variation_profit)})`
+      : `Réduire le prix de ${Math.abs(meilleurScenario.variation_pourcentage)}% pourrait maximiser le profit (+${formaterEuro(meilleurScenario.variation_profit)})`;
+
+  return {
+    format_id: format.id,
+    format_nom: format.nom,
+    prix_actuel: prixActuel,
+    cout_actuel: coutActuel,
+    marge_actuelle: margeActuelle,
+    scenarios,
+    elasticite_prix: elasticitePrix,
+    recommandation,
+  };
+}
+
+/**
+ * Applique une promotion à un prix
+ */
+export function appliquerPromotion(
+  prixBase: number,
+  promotion: Promotion,
+  quantite: number = 1
+): number {
+  if (!promotion.actif) return prixBase;
+
+  let prixFinal = prixBase;
+
+  switch (promotion.type) {
+    case "pourcentage":
+      prixFinal = prixBase * (1 - promotion.valeur_remise / 100);
+      break;
+    
+    case "montant_fixe":
+      prixFinal = Math.max(0, prixBase - promotion.valeur_remise);
+      break;
+    
+    case "volume":
+      if (quantite >= (promotion.quantite_minimum || 0)) {
+        prixFinal = prixBase * (1 - promotion.valeur_remise / 100);
+      }
+      break;
+  }
+
+  return prixFinal;
+}
+
+/**
+ * Calcule le prix avec promotions appliquées pour un format
+ */
+export function calculerPrixAvecPromotions(
+  format: FormatVenteType,
+  promotions: Promotion[],
+  quantite: number = 1
+): { prixFinal: number; promotionsAppliquees: Promotion[]; remiseTotale: number } {
+  const prixBase = format.prix_vente_pratique || format.prix_vente_recommande;
+  let prixFinal = prixBase;
+  const promotionsAppliquees: Promotion[] = [];
+
+  // Filtrer les promotions applicables
+  const promotionsActives = promotions.filter((p) => {
+    if (!p.actif) return false;
+    
+    const maintenant = new Date();
+    if (new Date(p.date_debut) > maintenant || new Date(p.date_fin) < maintenant) {
+      return false;
+    }
+
+    // Vérifier si applicable à ce format
+    if (p.format_ids && p.format_ids.length > 0) {
+      if (!p.format_ids.includes(format.id)) return false;
+    }
+
+    // Vérifier les conditions de quantité pour les promotions volume
+    if (p.type === "volume" && quantite < (p.quantite_minimum || 0)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Appliquer les promotions (on prend la meilleure)
+  let meilleurePrix = prixBase;
+  let meilleurePromotion: Promotion | null = null;
+
+  promotionsActives.forEach((promo) => {
+    const prixAvecPromo = appliquerPromotion(prixBase, promo, quantite);
+    if (prixAvecPromo < meilleurePrix) {
+      meilleurePrix = prixAvecPromo;
+      meilleurePromotion = promo;
+    }
+  });
+
+  if (meilleurePromotion) {
+    prixFinal = meilleurePrix;
+    promotionsAppliquees.push(meilleurePromotion);
+  }
+
+  const remiseTotale = prixBase - prixFinal;
+
+  return {
+    prixFinal,
+    promotionsAppliquees,
+    remiseTotale,
+  };
+}

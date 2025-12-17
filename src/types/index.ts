@@ -265,6 +265,12 @@ export interface FormatVente {
 
   // Métadonnées
   canal_vente: CanalVente;
+  
+  // Phase 3: Prix par canal (optionnel, si non défini utilise prix_vente_pratique pour tous)
+  prix_par_canal?: PrixParCanal[];
+  
+  // Phase 3: Promotions applicables
+  promotions_actives?: string[]; // IDs des promotions actives
   actif: boolean;
   date_creation: Date;
   notes?: string;
@@ -556,4 +562,69 @@ export interface TempsProductionEstimation {
   nombre_batches: number; // nombre de fournées nécessaires
   temps_total_minutes: number;
   temps_total_heures: number;
+}
+
+// ============================================
+// 15. PHASE 3 - PRICING & PROMOTIONS
+// ============================================
+
+export type TypeCanal = "boutique" | "evenement" | "en_ligne" | "livraison";
+
+export interface PrixParCanal {
+  canal: TypeCanal;
+  prix_vente: number;
+  marge_pourcentage: number;
+  actif: boolean; // si ce canal est actif pour ce format
+}
+
+export interface Promotion {
+  id: string;
+  nom: string;
+  description?: string;
+  type: "pourcentage" | "montant_fixe" | "volume";
+  
+  // Remise
+  valeur_remise: number; // % ou montant en G
+  
+  // Conditions de volume (pour type "volume")
+  quantite_minimum?: number; // ex: 50 cookies minimum
+  
+  // Applicabilité
+  recette_ids?: string[]; // Si vide, applicable à toutes
+  format_ids?: string[]; // Si vide, applicable à tous
+  canaux?: TypeCanal[]; // Si vide, applicable à tous canaux
+  
+  // Validité
+  date_debut: Date;
+  date_fin: Date;
+  actif: boolean;
+  
+  // Application
+  application_automatique: boolean; // ou manuelle
+  code_promo?: string; // pour application manuelle
+  
+  notes?: string;
+}
+
+export interface AnalyseSensibilite {
+  format_id: string;
+  format_nom: string;
+  prix_actuel: number;
+  cout_actuel: number;
+  marge_actuelle: number;
+  
+  // Scénarios de variation de prix
+  scenarios: {
+    variation_pourcentage: number; // -15, -10, -5, 0, +5, +10, +15
+    nouveau_prix: number;
+    estimation_volume: number; // estimation de l'impact sur les ventes (élasticité)
+    chiffre_affaires: number;
+    profit_total: number;
+    variation_profit: number; // vs prix actuel
+  }[];
+  
+  // Élasticité prix (par défaut -1.5 = élastique)
+  elasticite_prix: number;
+  
+  recommandation?: string; // Prix recommandé basé sur l'analyse
 }

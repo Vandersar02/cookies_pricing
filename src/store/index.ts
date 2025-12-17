@@ -18,6 +18,7 @@ import type {
   AchatIngredient,
   ProductionRecord,
   PlanificationProduction,
+  Promotion,
 } from "@/types";
 
 import {
@@ -45,6 +46,7 @@ interface AppState {
   achats: AchatIngredient[]; // Historique des achats
   productions: ProductionRecord[]; // Historique des productions
   planifications: PlanificationProduction[]; // Planifications de production
+  promotions: Promotion[]; // Promotions et offres spéciales
 
   // ============ UI ============
   pageActive: string;
@@ -164,6 +166,15 @@ interface AppState {
   supprimerPlanification: (id: string) => void;
   executerPlanification: (id: string) => void; // Crée une production à partir d'une planification
 
+  // ============ ACTIONS PROMOTIONS ============
+  ajouterPromotion: (promotion: Omit<Promotion, "id">) => void;
+  modifierPromotion: (id: string, modifications: Partial<Promotion>) => void;
+  supprimerPromotion: (id: string) => void;
+  activerPromotion: (id: string) => void;
+  desactiverPromotion: (id: string) => void;
+  getPromotionsActives: () => Promotion[];
+  appliquerPromotionFormat: (format_id: string, promotion_id: string) => number; // Retourne le prix après promotion
+
   // ============ UI ============
   changerPage: (page: string) => void;
 }
@@ -185,6 +196,7 @@ export const useStore = create<AppState>()(
       achats: [],
       productions: [],
       planifications: [],
+      promotions: [],
       pageActive: "dashboard",
 
       // ============ ACTIONS CATÉGORIES ============
@@ -838,6 +850,87 @@ export const useStore = create<AppState>()(
         });
       },
 
+      // ============ ACTIONS PROMOTIONS ============
+      ajouterPromotion: (promotion) => {
+        set((state: AppState) => ({
+          promotions: [
+            ...state.promotions,
+            {
+              ...promotion,
+              id: genererID(),
+            },
+          ],
+        }));
+      },
+
+      modifierPromotion: (id, modifications) => {
+        set((state: AppState) => ({
+          promotions: state.promotions.map((p) =>
+            p.id === id ? { ...p, ...modifications } : p
+          ),
+        }));
+      },
+
+      supprimerPromotion: (id) => {
+        set((state: AppState) => ({
+          promotions: state.promotions.filter((p) => p.id !== id),
+        }));
+      },
+
+      activerPromotion: (id) => {
+        set((state: AppState) => ({
+          promotions: state.promotions.map((p) =>
+            p.id === id ? { ...p, actif: true } : p
+          ),
+        }));
+      },
+
+      desactiverPromotion: (id) => {
+        set((state: AppState) => ({
+          promotions: state.promotions.map((p) =>
+            p.id === id ? { ...p, actif: false } : p
+          ),
+        }));
+      },
+
+      getPromotionsActives: () => {
+        const state = get();
+        const maintenant = new Date();
+        return state.promotions.filter(
+          (p) =>
+            p.actif &&
+            new Date(p.date_debut) <= maintenant &&
+            new Date(p.date_fin) >= maintenant
+        );
+      },
+
+      appliquerPromotionFormat: (format_id, promotion_id) => {
+        const state = get();
+        const format = state.formatsVente.find((f) => f.id === format_id);
+        const promotion = state.promotions.find((p) => p.id === promotion_id);
+
+        if (!format || !promotion || !promotion.actif) {
+          return format?.prix_vente_pratique || 0;
+        }
+
+        // Vérifier si la promotion est applicable à ce format
+        if (promotion.format_ids && !promotion.format_ids.includes(format_id)) {
+          return format.prix_vente_pratique || 0;
+        }
+
+        const prixBase = format.prix_vente_pratique || format.prix_vente_recommande;
+        let prixFinal = prixBase;
+
+        if (promotion.type === "pourcentage") {
+          prixFinal = prixBase * (1 - promotion.valeur_remise / 100);
+        } else if (promotion.type === "montant_fixe") {
+          prixFinal = Math.max(0, prixBase - promotion.valeur_remise);
+        }
+        // Pour type "volume", le calcul se fait au moment de la vente selon la quantité
+
+        return prixFinal;
+      },
+
       // ============ UI ============
       changerPage: (page: string) => {
         set({ pageActive: page });
@@ -988,6 +1081,7 @@ export const useStore = create<AppState>()(
         categoriesPersonnalisees: state.categoriesPersonnalisees,
         productions: state.productions,
         planifications: state.planifications,
+        promotions: state.promotions,
       }),
     }
   )
