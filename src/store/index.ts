@@ -16,6 +16,8 @@ import type {
   Simulation,
   AlerteRentabilite,
   AchatIngredient,
+  ProductionRecord,
+  PlanificationProduction,
 } from "@/types";
 
 import {
@@ -41,6 +43,8 @@ interface AppState {
   alertes: AlerteRentabilite[];
   categoriesPersonnalisees: string[]; // Catégories personnalisées ajoutées par l'utilisateur
   achats: AchatIngredient[]; // Historique des achats
+  productions: ProductionRecord[]; // Historique des productions
+  planifications: PlanificationProduction[]; // Planifications de production
 
   // ============ UI ============
   pageActive: string;
@@ -148,6 +152,18 @@ interface AppState {
   // ============ ACTIONS ALERTES ============
   genererAlertes: () => void;
 
+  // ============ ACTIONS PRODUCTION ============
+  ajouterProduction: (production: Omit<ProductionRecord, "id">) => void;
+  modifierProduction: (id: string, modifications: Partial<ProductionRecord>) => void;
+  supprimerProduction: (id: string) => void;
+  terminerProduction: (id: string) => void; // Termine et consomme le stock
+  
+  // ============ ACTIONS PLANIFICATION ============
+  ajouterPlanification: (planification: Omit<PlanificationProduction, "id" | "ingredients_necessaires" | "temps_estime_minutes">) => void;
+  modifierPlanification: (id: string, modifications: Partial<PlanificationProduction>) => void;
+  supprimerPlanification: (id: string) => void;
+  executerPlanification: (id: string) => void; // Crée une production à partir d'une planification
+
   // ============ UI ============
   changerPage: (page: string) => void;
 }
@@ -167,6 +183,8 @@ export const useStore = create<AppState>()(
       alertes: [],
       categoriesPersonnalisees: [],
       achats: [],
+      productions: [],
+      planifications: [],
       pageActive: "dashboard",
 
       // ============ ACTIONS CATÉGORIES ============
@@ -637,6 +655,189 @@ export const useStore = create<AppState>()(
         set({ alertes });
       },
 
+      // ============ ACTIONS PRODUCTION ============
+      ajouterProduction: (production) => {
+        set((state: AppState) => ({
+          productions: [
+            ...state.productions,
+            {
+              ...production,
+              id: genererID(),
+            },
+          ],
+        }));
+      },
+
+      modifierProduction: (id, modifications) => {
+        set((state: AppState) => ({
+          productions: state.productions.map((p) =>
+            p.id === id ? { ...p, ...modifications } : p
+          ),
+        }));
+      },
+
+      supprimerProduction: (id) => {
+        set((state: AppState) => ({
+          productions: state.productions.filter((p) => p.id !== id),
+        }));
+      },
+
+      terminerProduction: (id) => {
+        set((state: AppState) => {
+          const production = state.productions.find((p) => p.id === id);
+          if (!production || production.statut === "termine") {
+            return state;
+          }
+
+          // Consommer le stock automatiquement
+          const ingredientsUpdated = state.ingredients.map((ing) => {
+            const consommation = production.stock_consomme.find(
+              (s) => s.ingredient_id === ing.id
+            );
+            if (consommation && ing.quantite_stock !== undefined) {
+              return {
+                ...ing,
+                quantite_stock: Math.max(
+                  0,
+                  ing.quantite_stock - consommation.quantite_consommee
+                ),
+              };
+            }
+            return ing;
+          });
+
+          // Marquer la production comme terminée
+          const productionsUpdated = state.productions.map((p) =>
+            p.id === id ? { ...p, statut: "termine" as const } : p
+          );
+
+          return {
+            ingredients: ingredientsUpdated,
+            productions: productionsUpdated,
+          };
+        });
+      },
+
+      // ============ ACTIONS PLANIFICATION ============
+      ajouterPlanification: (planification) => {
+        set((state: AppState) => {
+          const recette = state.recettes.find(
+            (r) => r.id === planification.recette_id
+          );
+          if (!recette) return state;
+
+          // Calculer les ingrédients nécessaires
+          const quantiteRecettes = Math.ceil(
+            planification.quantite_a_produire / recette.nombre_cookies_produits
+          );
+          
+          const ingredientsNecessaires = recette.ingredients.map((ing) => {
+            const ingredient = state.ingredients.find(
+              (i) => i.id === ing.ingredient_id
+            );
+            const quantiteNecessaire = ing.quantite_necessaire * quantiteRecettes;
+            const quantiteDisponible = ingredient?.quantite_stock || 0;
+
+            return {
+              ingredient_id: ing.ingredient_id,
+              ingredient_nom: ing.ingredient_nom,
+              quantite_necessaire: quantiteNecessaire,
+              quantite_disponible: quantiteDisponible,
+              manque: quantiteNecessaire > quantiteDisponible,
+            };
+          });
+
+          // Estimer le temps (valeurs par défaut, à ajuster)
+          const tempsPreparation = 30; // 30 min de préparation
+          const tempsCuissonParBatch = 15; // 15 min par fournée
+          const cookiesParBatch = 24; // 24 cookies par fournée
+          const nombreBatches = Math.ceil(
+            planification.quantite_a_produire / cookiesParBatch
+          );
+          const tempsRefroidissement = 20; // 20 min de refroidissement
+          const tempsEstime =
+            tempsPreparation +
+            tempsCuissonParBatch * nombreBatches +
+            tempsRefroidissement;
+
+          return {
+            planifications: [
+              ...state.planifications,
+              {
+                ...planification,
+                id: genererID(),
+                ingredients_necessaires: ingredientsNecessaires,
+                temps_estime_minutes: tempsEstime,
+              },
+            ],
+          };
+        });
+      },
+
+      modifierPlanification: (id, modifications) => {
+        set((state: AppState) => ({
+          planifications: state.planifications.map((p) =>
+            p.id === id ? { ...p, ...modifications } : p
+          ),
+        }));
+      },
+
+      supprimerPlanification: (id) => {
+        set((state: AppState) => ({
+          planifications: state.planifications.filter((p) => p.id !== id),
+        }));
+      },
+
+      executerPlanification: (id) => {
+        set((state: AppState) => {
+          const plan = state.planifications.find((p) => p.id === id);
+          if (!plan) return state;
+
+          const recette = state.recettes.find((r) => r.id === plan.recette_id);
+          if (!recette) return state;
+
+          // Créer une production à partir de la planification
+          const stockConsomme = plan.ingredients_necessaires.map((ing) => ({
+            ingredient_id: ing.ingredient_id,
+            ingredient_nom: ing.ingredient_nom,
+            quantite_consommee: ing.quantite_necessaire,
+            unite: state.ingredients.find((i) => i.id === ing.ingredient_id)
+              ?.unite_achat || "kg",
+          }));
+
+          const nouvelleProduction: ProductionRecord = {
+            id: genererID(),
+            recette_id: plan.recette_id,
+            recette_nom: plan.recette_nom,
+            format_vente_id: plan.format_vente_id,
+            format_vente_nom: state.formatsVente.find(
+              (f) => f.id === plan.format_vente_id
+            )?.nom,
+            date_production: new Date(),
+            quantite_produite: plan.quantite_a_produire,
+            temps_preparation_minutes: 30,
+            temps_cuisson_minutes: Math.ceil(plan.quantite_a_produire / 24) * 15,
+            temps_refroidissement_minutes: 20,
+            temps_total_minutes: plan.temps_estime_minutes,
+            stock_consomme: stockConsomme,
+            statut: "en_cours",
+            notes: `Production créée depuis planification #${plan.id.substring(0, 8)}`,
+          };
+
+          // Mettre à jour la planification
+          const planificationsUpdated = state.planifications.map((p) =>
+            p.id === id
+              ? { ...p, statut: "en_cours" as const, production_id: nouvelleProduction.id }
+              : p
+          );
+
+          return {
+            productions: [...state.productions, nouvelleProduction],
+            planifications: planificationsUpdated,
+          };
+        });
+      },
+
       // ============ UI ============
       changerPage: (page: string) => {
         set({ pageActive: page });
@@ -785,6 +986,8 @@ export const useStore = create<AppState>()(
         alertes: state.alertes,
         achats: state.achats,
         categoriesPersonnalisees: state.categoriesPersonnalisees,
+        productions: state.productions,
+        planifications: state.planifications,
       }),
     }
   )

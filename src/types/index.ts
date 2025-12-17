@@ -496,3 +496,64 @@ export interface ComparaisonFournisseur {
   meilleur_fournisseur: string;
   economie_annuelle_estimee: number;
 }
+
+// ============================================
+// 14. PHASE 2 - PRODUCTION MANAGEMENT
+// ============================================
+
+export interface ProductionRecord {
+  id: string;
+  recette_id: string;
+  recette_nom: string;
+  format_vente_id?: string;
+  format_vente_nom?: string;
+  date_production: Date;
+  quantite_produite: number; // nombre de cookies produits
+  temps_preparation_minutes: number;
+  temps_cuisson_minutes: number;
+  temps_refroidissement_minutes: number;
+  temps_total_minutes: number;
+  operateur?: string; // qui a fait la production
+  notes?: string;
+  stock_consomme: {
+    ingredient_id: string;
+    ingredient_nom: string;
+    quantite_consommee: number;
+    unite: string;
+  }[];
+  statut: "planifie" | "en_cours" | "termine" | "annule";
+}
+
+export interface PlanificationProduction {
+  id: string;
+  date_prevue: Date;
+  recette_id: string;
+  recette_nom: string;
+  quantite_a_produire: number;
+  format_vente_id?: string;
+  priorite: "basse" | "normale" | "haute" | "urgente";
+  ingredients_necessaires: {
+    ingredient_id: string;
+    ingredient_nom: string;
+    quantite_necessaire: number;
+    quantite_disponible: number;
+    manque: boolean;
+  }[];
+  temps_estime_minutes: number;
+  statut: "planifie" | "pret" | "en_cours" | "termine" | "annule";
+  production_id?: string; // lien vers ProductionRecord une fois executé
+  notes?: string;
+}
+
+export interface TempsProductionEstimation {
+  recette_id: string;
+  recette_nom: string;
+  nombre_cookies: number;
+  temps_preparation_unitaire: number; // minutes par cookie
+  temps_cuisson_par_batch: number; // minutes par fournée
+  temps_refroidissement: number; // minutes
+  cookies_par_batch: number; // combien de cookies par fournée
+  nombre_batches: number; // nombre de fournées nécessaires
+  temps_total_minutes: number;
+  temps_total_heures: number;
+}
