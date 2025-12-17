@@ -10,8 +10,14 @@ import { databaseService } from './database-service';
 const STORAGE_KEY = 'cookie-pricing-storage';
 
 // Debounce pour limiter les sauvegardes en ligne
-let saveTimeout: NodeJS.Timeout | null = null;
+// Utiliser une Map pour gérer plusieurs utilisateurs simultanément
+const saveTimeouts = new Map<string, NodeJS.Timeout>();
 const SAVE_DEBOUNCE_MS = 2000; // 2 secondes
+
+type StorageValue<S> = {
+  state: S;
+  version?: number;
+};
 
 /**
  * Storage hybride: localStorage + Supabase
@@ -23,7 +29,7 @@ export const hybridStorage: PersistStorage<Record<string, unknown>> = {
    * Récupérer les données
    * Priorité: Supabase si connecté, sinon localStorage
    */
-  getItem: async (name: string): Promise<Record<string, unknown> | null> => {
+  getItem: async (name: string): Promise<StorageValue<Record<string, unknown>> | null> => {
     try {
       // Toujours charger depuis localStorage en premier (rapide)
       const localData = localStorage.getItem(name);
@@ -42,10 +48,11 @@ export const hybridStorage: PersistStorage<Record<string, unknown>> = {
             const cloudState = cloudData;
             
             // Si les données cloud sont plus récentes ou si pas de données locales
-            if (!localState || shouldUseCloudData(localState, cloudState)) {
+            if (!localState || shouldUseCloudData(localState.state, cloudState)) {
               // Sauvegarder en local pour accès rapide
-              localStorage.setItem(name, JSON.stringify(cloudData));
-              return cloudData; // Retourner l'objet parsé directement
+              const storageValue: StorageValue<Record<string, unknown>> = { state: cloudState };
+              localStorage.setItem(name, JSON.stringify(storageValue));
+              return storageValue; // Retourner l'objet avec state
             }
           }
         }
@@ -66,29 +73,42 @@ export const hybridStorage: PersistStorage<Record<string, unknown>> = {
    * - Immédiat en localStorage
    * - Différé sur Supabase (debounced)
    */
-  setItem: async (name: string, value: Record<string, unknown>): Promise<void> => {
+  setItem: async (name: string, value: StorageValue<Record<string, unknown>>): Promise<void> => {
     try {
       // 1. Sauvegarde immédiate en localStorage
       localStorage.setItem(name, JSON.stringify(value));
       
+      // Extraire l'état pour la sauvegarde cloud
+      const stateData = value.state;
+      
       // 2. Sauvegarde différée sur Supabase si configuré
       if (databaseService.isConfigured()) {
-        // Annuler le timeout précédent
-        if (saveTimeout) {
-          clearTimeout(saveTimeout);
-        }
-        
-        // Programmer une sauvegarde
-        saveTimeout = setTimeout(async () => {
-          try {
-            const user = await databaseService.getCurrentUser();
-            if (user) {
-              await databaseService.saveData(user.id, value);
+        // Obtenir l'utilisateur pour la clé de debounce
+        databaseService.getCurrentUser().then(user => {
+          if (user) {
+            const timeoutKey = user.id;
+            
+            // Annuler le timeout précédent pour cet utilisateur
+            const existingTimeout = saveTimeouts.get(timeoutKey);
+            if (existingTimeout) {
+              clearTimeout(existingTimeout);
             }
-          } catch (error) {
-            console.error('Erreur lors de la sauvegarde cloud:', error);
+            
+            // Programmer une sauvegarde
+            const newTimeout = setTimeout(async () => {
+              try {
+                await databaseService.saveData(user.id, stateData);
+                saveTimeouts.delete(timeoutKey);
+              } catch (error) {
+                console.error('Erreur lors de la sauvegarde cloud:', error);
+              }
+            }, SAVE_DEBOUNCE_MS);
+            
+            saveTimeouts.set(timeoutKey, newTimeout);
           }
-        }, SAVE_DEBOUNCE_MS);
+        }).catch(error => {
+          console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        });
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des données:', error);
@@ -202,8 +222,8 @@ export async function forceSyncToCloud(): Promise<boolean> {
       return false;
     }
     
-    const data = JSON.parse(localData);
-    const success = await databaseService.saveData(user.id, data);
+    const storageValue: StorageValue<Record<string, unknown>> = JSON.parse(localData);
+    const success = await databaseService.saveData(user.id, storageValue.state);
     
     return success;
   } catch (error) {
@@ -213,7 +233,10 @@ export async function forceSyncToCloud(): Promise<boolean> {
 }
 
 /**
- * Charger les données depuis Supabase
+ * Charger les données depuis Supabase et recharger la page
+ * Note: Le rechargement de la page est nécessaire car Zustand ne réagit pas automatiquement
+ * aux changements de localStorage. Une alternative serait d'exposer une méthode de rechargement
+ * dans le store, mais cela nécessiterait plus de modifications.
  */
 export async function loadFromCloud(): Promise<boolean> {
   try {
@@ -234,10 +257,12 @@ export async function loadFromCloud(): Promise<boolean> {
       return false;
     }
     
-    // Sauvegarder en localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData));
+    // Sauvegarder en localStorage avec le format StorageValue
+    const storageValue: StorageValue<Record<string, unknown>> = { state: cloudData };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(storageValue));
     
     // Recharger la page pour appliquer les changements
+    // C'est l'approche la plus simple pour forcer Zustand à recharger l'état
     window.location.reload();
     
     return true;

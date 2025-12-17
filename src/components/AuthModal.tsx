@@ -39,10 +39,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         onSuccess();
         onClose();
       } else {
-        setError(result.error || 'Une erreur est survenue');
+        console.error('Erreur d\'authentification:', result.error);
+        setError(result.error || 'Une erreur est survenue lors de l\'authentification');
       }
     } catch (err) {
-      setError('Une erreur est survenue');
+      console.error('Erreur inattendue lors de l\'authentification:', err);
+      setError(err instanceof Error ? err.message : 'Une erreur inattendue est survenue');
     } finally {
       setLoading(false);
     }
