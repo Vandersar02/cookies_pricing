@@ -35,21 +35,41 @@ function App() {
   const { pageActive, changerPage, alertes } = useStore();
   const [menuMobileOuvert, setMenuMobileOuvert] = useState(false);
 
-  const navigation = [
-    { id: "dashboard", nom: "Tableau de bord", icon: TrendingUp },
-    { id: "ingredients", nom: "Ingrédients", icon: Package },
-    { id: "recettes", nom: "Recettes", icon: Cookie },
-    { id: "emballages", nom: "Emballages", icon: Package },
-    { id: "stocks", nom: "Stocks", icon: Warehouse },
-    { id: "achats", nom: "Achats", icon: Receipt },
-    { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
-    { id: "production", nom: "Production", icon: Factory },
-    { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
-    { id: "pricing", nom: "Pricing & Promos", icon: DollarSign },
-    { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
-    { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
-    { id: "exports", nom: "Exports & Labels", icon: FileText },
-    { id: "analyses", nom: "Analyses", icon: TrendingUp },
+  const navigationSections = [
+    {
+      titre: "Vue d'ensemble",
+      items: [
+        { id: "dashboard", nom: "Tableau de bord", icon: TrendingUp },
+      ],
+    },
+    {
+      titre: "Gestion",
+      items: [
+        { id: "ingredients", nom: "Ingrédients", icon: Package },
+        { id: "recettes", nom: "Recettes", icon: Cookie },
+        { id: "emballages", nom: "Emballages", icon: Package },
+        { id: "stocks", nom: "Stocks", icon: Warehouse },
+        { id: "achats", nom: "Achats", icon: Receipt },
+      ],
+    },
+    {
+      titre: "Production & Vente",
+      items: [
+        { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
+        { id: "production", nom: "Production", icon: Factory },
+        { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
+        { id: "pricing", nom: "Pricing & Promos", icon: DollarSign },
+      ],
+    },
+    {
+      titre: "Analyses & Outils",
+      items: [
+        { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
+        { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
+        { id: "exports", nom: "Exports & Labels", icon: FileText },
+        { id: "analyses", nom: "Analyses", icon: TrendingUp },
+      ],
+    },
   ];
 
   const renderPage = () => {
@@ -149,125 +169,36 @@ function App() {
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-6">
-            {/* Section: Vue d'ensemble */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-                Vue d'ensemble
-              </h3>
-              <ul className="space-y-1">
-                {navigation.slice(0, 1).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => {
-                          changerPage(item.id);
-                          setMenuMobileOuvert(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
-                          pageActive === item.id
-                            ? "bg-primary-700 text-primary-100 font-medium"
-                            : "text-slate-300 hover:bg-slate-800"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="truncate">{item.nom}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Section: Gestion */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-                Gestion
-              </h3>
-              <ul className="space-y-1">
-                {navigation.slice(1, 6).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => {
-                          changerPage(item.id);
-                          setMenuMobileOuvert(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
-                          pageActive === item.id
-                            ? "bg-primary-700 text-primary-100 font-medium"
-                            : "text-slate-300 hover:bg-slate-800"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="truncate">{item.nom}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Section: Production & Vente */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-                Production & Vente
-              </h3>
-              <ul className="space-y-1">
-                {navigation.slice(6, 10).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => {
-                          changerPage(item.id);
-                          setMenuMobileOuvert(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
-                          pageActive === item.id
-                            ? "bg-primary-700 text-primary-100 font-medium"
-                            : "text-slate-300 hover:bg-slate-800"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="truncate">{item.nom}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Section: Analyses & Outils */}
-            <div>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
-                Analyses & Outils
-              </h3>
-              <ul className="space-y-1">
-                {navigation.slice(10).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => {
-                          changerPage(item.id);
-                          setMenuMobileOuvert(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
-                          pageActive === item.id
-                            ? "bg-primary-700 text-primary-100 font-medium"
-                            : "text-slate-300 hover:bg-slate-800"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="truncate">{item.nom}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            {navigationSections.map((section) => (
+              <div key={section.titre}>
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+                  {section.titre}
+                </h3>
+                <ul className="space-y-1">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.id}>
+                        <button
+                          onClick={() => {
+                            changerPage(item.id);
+                            setMenuMobileOuvert(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                            pageActive === item.id
+                              ? "bg-primary-700 text-primary-100 font-medium"
+                              : "text-slate-300 hover:bg-slate-800"
+                          }`}
+                        >
+                          <Icon className="w-5 h-5 flex-shrink-0" />
+                          <span className="truncate">{item.nom}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </div>
         </nav>
 
