@@ -255,10 +255,25 @@ export const useStore = create<AppState>()(
       },
 
       recalculerTousPrixIngredients: () => {
-        const { ingredients } = get();
-        ingredients.forEach((ing: Ingredient) => {
-          get().recalculerPrixIngredient(ing.id);
-        });
+        const { achats } = get();
+        
+        // Batch update all ingredient prices in a single state update
+        set((state: AppState) => ({
+          ingredients: state.ingredients.map((ing: Ingredient) => {
+            const prixParUnite = calculerPrixParUniteDepuisAchats(ing.id, achats);
+            const prixParGramme = prixParUnite > 0 ? calculerPrixParGramme({
+              ...ing,
+              prix_par_unite: prixParUnite,
+            }) : 0;
+
+            return {
+              ...ing,
+              prix_par_unite: prixParUnite,
+              prix_par_gramme: prixParGramme,
+            };
+          }),
+        }));
+        
         get().recalculerTousFormatsVente();
       },
 
