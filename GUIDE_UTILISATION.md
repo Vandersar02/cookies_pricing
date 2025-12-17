@@ -79,8 +79,14 @@ Le logiciel s'ouvre sur **http://localhost:5173/**
    - **Boîte premium 12 cookies** : 1.50€
    - **Sachet simple 3 cookies** : 0.10€
 
+3. **Nouveauté : Produits additionnels**
+   - Ajoutez le coût des extras (étiquettes, rubans, décorations)
+   - Exemple : Boîte + étiquette (0.10€) + ruban (0.15€) = 0.25€ d'extras
+   - Ces coûts sont automatiquement inclus dans le calcul final
+
 Le logiciel calcule le coût par cookie :
 - Sachet 6 cookies à 0.20€ = **0.033€/cookie**
+- Avec extras (0.25€) : coût total = 0.45€ = **0.075€/cookie**
 
 ---
 
@@ -138,6 +144,24 @@ Marge réelle : 1.52 / 3.80 = 40% ✅
 
 ---
 
+### ✅ ÉTAPE 6 : Comparateur de marges (NOUVEAU)
+
+1. Cliquez sur **"Comparateur Marges"**
+2. Sélectionnez un format de vente
+3. Visualisez :
+   - **Coût sans emballage** : Ingrédients + charges + pertes uniquement
+   - **Coût avec emballage** : Coût complet incluant emballage et extras
+   - **Coût par cookie** : Détail du coût unitaire
+   - **Comparaison des marges** : Tableau comparatif de 25% à 60%
+
+4. **Utilisez le guide de sélection** :
+   - Compétitif (25-30%) : Vente en volume
+   - Standard (30-45%) : Boutique, vente directe
+   - Premium (45-55%) : Qualité supérieure
+   - Luxe (55%+) : Haut de gamme
+
+---
+
 ## 🎯 COMPRENDRE LES CALCULS
 
 ### Formule du coût réel :
@@ -145,6 +169,7 @@ Marge réelle : 1.52 / 3.80 = 40% ✅
 COÛT RÉEL = 
   Coût ingrédients +
   Coût emballage +
+  Coût extras emballage +
   Charges réparties +
   Majoration pertes
 ```

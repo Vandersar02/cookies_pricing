@@ -11,13 +11,18 @@
   },
   "dependencies": {
     "date-fns": "^3.0.0",
+    "html2canvas": "^1.4.1",
+    "jsbarcode": "^3.11.6",
+    "jspdf": "^2.5.1",
     "lucide-react": "^0.344.0",
+    "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^3.6.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

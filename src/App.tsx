@@ -11,6 +11,9 @@ import {
   Menu,
   X,
   Receipt,
+  Calculator,
+  Factory,
+  FileText,
 } from "lucide-react";
 import Dashboard from "@/pages/Dashboard";
 import Ingredients from "@/pages/Ingredients";
@@ -21,6 +24,11 @@ import FormatsVente from "@/pages/FormatsVente";
 import Analyses from "@/pages/Analyses";
 import Stocks from "@/pages/Stocks";
 import Achats from "@/pages/Achats";
+import ComparateurMarges from "@/pages/ComparateurMarges";
+import Optimisations from "@/pages/Optimisations";
+import Production from "@/pages/Production";
+import PricingPromotions from "@/pages/PricingPromotions";
+import ExportsLabels from "@/pages/ExportsLabels";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -34,7 +42,12 @@ function App() {
     { id: "stocks", nom: "Stocks", icon: Warehouse },
     { id: "achats", nom: "Achats", icon: Receipt },
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
+    { id: "production", nom: "Production", icon: Factory },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
+    { id: "pricing", nom: "Pricing & Promos", icon: DollarSign },
+    { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
+    { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
+    { id: "exports", nom: "Exports & Labels", icon: FileText },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
   ];
 
@@ -54,8 +67,18 @@ function App() {
         return <Achats />;
       case "charges":
         return <Charges />;
+      case "production":
+        return <Production />;
       case "formats":
         return <FormatsVente />;
+      case "pricing":
+        return <PricingPromotions />;
+      case "comparateur":
+        return <ComparateurMarges />;
+      case "optimisations":
+        return <Optimisations />;
+      case "exports":
+        return <ExportsLabels />;
       case "analyses":
         return <Analyses />;
       default:
