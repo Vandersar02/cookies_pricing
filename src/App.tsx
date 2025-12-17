@@ -13,6 +13,7 @@ import {
   Receipt,
   Calculator,
   Factory,
+  FileText,
 } from "lucide-react";
 import Dashboard from "@/pages/Dashboard";
 import Ingredients from "@/pages/Ingredients";
@@ -27,6 +28,7 @@ import ComparateurMarges from "@/pages/ComparateurMarges";
 import Optimisations from "@/pages/Optimisations";
 import Production from "@/pages/Production";
 import PricingPromotions from "@/pages/PricingPromotions";
+import ExportsLabels from "@/pages/ExportsLabels";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -45,6 +47,7 @@ function App() {
     { id: "pricing", nom: "Pricing & Promos", icon: DollarSign },
     { id: "comparateur", nom: "Comparateur Marges", icon: Calculator },
     { id: "optimisations", nom: "Optimisations", icon: TrendingUp },
+    { id: "exports", nom: "Exports & Labels", icon: FileText },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
   ];
 
@@ -74,6 +77,8 @@ function App() {
         return <ComparateurMarges />;
       case "optimisations":
         return <Optimisations />;
+      case "exports":
+        return <ExportsLabels />;
       case "analyses":
         return <Analyses />;
       default:

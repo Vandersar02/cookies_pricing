@@ -6,12 +6,9 @@ import {
   Tag,
   TrendingUp,
   Calendar,
-  Percent,
-  Package,
   AlertCircle,
   CheckCircle,
   XCircle,
-  Edit,
   Trash2,
   BarChart3,
 } from "lucide-react";
@@ -24,9 +21,7 @@ export default function PricingPromotions() {
   const {
     formatsVente,
     promotions,
-    recettes,
     ajouterPromotion,
-    modifierPromotion,
     supprimerPromotion,
     activerPromotion,
     desactiverPromotion,
@@ -36,10 +31,21 @@ export default function PricingPromotions() {
   const [dialogPromotion, setDialogPromotion] = useState(false);
   const [formatSelectionneSensibilite, setFormatSelectionneSensibilite] = useState("");
 
-  const [formPromotion, setFormPromotion] = useState({
+  const [formPromotion, setFormPromotion] = useState<{
+    nom: string;
+    description: string;
+    type: "pourcentage" | "montant_fixe" | "volume";
+    valeur_remise: number;
+    quantite_minimum: number;
+    date_debut: string;
+    date_fin: string;
+    application_automatique: boolean;
+    code_promo: string;
+    notes: string;
+  }>({
     nom: "",
     description: "",
-    type: "pourcentage" as const,
+    type: "pourcentage",
     valeur_remise: 0,
     quantite_minimum: 0,
     date_debut: new Date().toISOString().split("T")[0],
