@@ -108,6 +108,8 @@ CREATE TRIGGER update_user_data_updated_at
 
 ### Étape 5 : Configurer l'application
 
+#### Pour le développement local
+
 1. Dans le dossier du projet, créez un fichier `.env` à la racine :
 
 ```bash
@@ -127,6 +129,21 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...votre-longue-cle
 ```bash
 npm run dev
 ```
+
+#### Pour le déploiement sur Vercel
+
+**Important** : Ne committez PAS le fichier `.env` sur GitHub !
+
+Pour déployer sur Vercel, vous devez configurer les variables d'environnement directement dans l'interface Vercel. Consultez le guide complet :
+
+👉 **[Guide de déploiement sur Vercel](./DEPLOIEMENT_VERCEL.md)**
+
+En résumé :
+1. Importez votre projet dans Vercel
+2. Ajoutez les variables `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` dans les paramètres Vercel
+3. Déployez !
+
+Aucun fichier `.env` n'est nécessaire sur Vercel. 🎉
 
 ---
 
