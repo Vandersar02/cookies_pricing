@@ -431,3 +431,68 @@ export interface RecommandationReapprovisionnement {
   jours_avant_rupture?: number;
   urgence: "faible" | "moyenne" | "haute" | "critique";
 }
+
+// ============================================
+// 13. PHASE 1 ANALYTICS - ABC, KPI, BREAK-EVEN
+// ============================================
+
+export type ClasseABC = "A" | "B" | "C";
+
+export interface AnalyseABCProduit {
+  format_id: string;
+  format_nom: string;
+  profit_unitaire: number;
+  contribution_profit: number; // % du profit total
+  contribution_cumulative: number; // % cumulé
+  classe: ClasseABC;
+  rang: number;
+}
+
+export interface SeuilRentabilite {
+  charges_fixes_mensuelles: number;
+  marge_contribution_moyenne: number; // profit moyen par unité vendue
+  unites_a_vendre: number; // nombre de cookies/formats à vendre
+  chiffre_affaires_minimum: number;
+  formats_analyse: {
+    format_id: string;
+    format_nom: string;
+    unites_necessaires: number; // combien vendre de ce format
+    ca_genere: number;
+  }[];
+}
+
+export interface KPIDashboard {
+  // Rentabilité
+  marge_brute_moyenne: number; // %
+  marge_nette_moyenne: number; // %
+  roi: number; // Return on Investment %
+  
+  // Stocks
+  valeur_stock_total: number;
+  rotation_stock_jours: number; // jours moyen de rotation
+  ingredients_en_alerte: number;
+  
+  // Fournisseurs
+  nombre_fournisseurs: number;
+  fournisseur_principal: string;
+  economie_potentielle: number; // si on optimise les fournisseurs
+  
+  // Production
+  cout_moyen_par_cookie: number;
+  recette_plus_rentable: string;
+  format_plus_rentable: string;
+}
+
+export interface ComparaisonFournisseur {
+  ingredient_id: string;
+  ingredient_nom: string;
+  fournisseurs: {
+    nom: string;
+    prix_unitaire_moyen: number;
+    nombre_achats: number;
+    dernier_achat?: Date;
+    fiabilite_score: number; // basé sur fréquence et régularité
+  }[];
+  meilleur_fournisseur: string;
+  economie_annuelle_estimee: number;
+}

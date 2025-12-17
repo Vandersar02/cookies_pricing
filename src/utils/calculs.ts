@@ -17,7 +17,12 @@ import type {
   StatistiquesFournisseur, 
   DepensesPeriode,
   PeriodeAnalyse,
-  RecommandationReapprovisionnement
+  RecommandationReapprovisionnement,
+  AnalyseABCProduit,
+  SeuilRentabilite,
+  KPIDashboard,
+  ComparaisonFournisseur,
+  ClasseABC,
 } from '@/types';
 import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
@@ -447,9 +452,9 @@ export function comparerFormats(formats: FormatVente[]): FormatVente[] {
 }
 
 /**
- * Calcule le seuil de rentabilité (break-even)
+ * Calcule le seuil de rentabilité simple (break-even)
  */
-export function calculerSeuilRentabilite(
+export function calculerSeuilRentabiliteSimple(
   chargesFixesMensuelles: number,
   margeUnitaire: number
 ): number {
@@ -688,4 +693,259 @@ export function genererRecommandationsReapprovisionnement(
   // Trier par urgence (critique en premier)
   const ordreUrgence = { critique: 0, haute: 1, moyenne: 2, faible: 3 };
   return recommandations.sort((a, b) => ordreUrgence[a.urgence] - ordreUrgence[b.urgence]);
+}
+
+// ============================================
+// 12. PHASE 1 ANALYTICS - ABC ANALYSIS
+// ============================================
+
+/**
+ * Analyse ABC des produits par rentabilité
+ * Classe A: 80% du profit (produits stars)
+ * Classe B: 15% du profit (produits standards)
+ * Classe C: 5% du profit (produits à revoir)
+ */
+export function analyseABCProduits(formats: FormatVente[]): AnalyseABCProduit[] {
+  // Filtrer les formats rentables et trier par profit décroissant
+  const formatsRentables = formats
+    .filter(f => f.profit_unitaire > 0)
+    .sort((a, b) => b.profit_unitaire - a.profit_unitaire);
+
+  if (formatsRentables.length === 0) {
+    return [];
+  }
+
+  // Calculer le profit total
+  const profitTotal = formatsRentables.reduce((sum, f) => sum + f.profit_unitaire, 0);
+
+  // Calculer les contributions et classifier
+  let cumulatif = 0;
+  const analyse: AnalyseABCProduit[] = formatsRentables.map((format, index) => {
+    const contribution = (format.profit_unitaire / profitTotal) * 100;
+    cumulatif += contribution;
+
+    let classe: ClasseABC;
+    if (cumulatif <= 80) {
+      classe = 'A';
+    } else if (cumulatif <= 95) {
+      classe = 'B';
+    } else {
+      classe = 'C';
+    }
+
+    return {
+      format_id: format.id,
+      format_nom: format.nom,
+      profit_unitaire: format.profit_unitaire,
+      contribution_profit: arrondir(contribution),
+      contribution_cumulative: arrondir(cumulatif),
+      classe,
+      rang: index + 1,
+    };
+  });
+
+  return analyse;
+}
+
+// ============================================
+// 13. BREAK-EVEN ANALYSIS (SEUIL DE RENTABILITÉ)
+// ============================================
+
+/**
+ * Calcule le seuil de rentabilité
+ * Combien d'unités vendre pour couvrir les charges fixes
+ */
+export function calculerSeuilRentabilite(
+  chargesFixesMensuelles: number,
+  formats: FormatVente[]
+): SeuilRentabilite {
+  const formatsRentables = formats.filter(f => f.profit_unitaire > 0);
+
+  if (formatsRentables.length === 0) {
+    return {
+      charges_fixes_mensuelles: chargesFixesMensuelles,
+      marge_contribution_moyenne: 0,
+      unites_a_vendre: 0,
+      chiffre_affaires_minimum: 0,
+      formats_analyse: [],
+    };
+  }
+
+  // Calculer la marge de contribution moyenne (profit moyen par unité)
+  const margeContributionMoyenne =
+    formatsRentables.reduce((sum, f) => sum + f.profit_unitaire, 0) /
+    formatsRentables.length;
+
+  // Nombre total d'unités à vendre pour couvrir les charges
+  const unitesAVendre = Math.ceil(chargesFixesMensuelles / margeContributionMoyenne);
+
+  // Répartir proportionnellement selon le profit de chaque format
+  const profitTotal = formatsRentables.reduce((sum, f) => sum + f.profit_unitaire, 0);
+  
+  const formatsAnalyse = formatsRentables.map(format => {
+    const proportion = format.profit_unitaire / profitTotal;
+    const unitesNecessaires = Math.ceil(unitesAVendre * proportion);
+    const prixVente = format.prix_vente_pratique || format.prix_vente_recommande;
+    const caGenere = unitesNecessaires * prixVente;
+
+    return {
+      format_id: format.id,
+      format_nom: format.nom,
+      unites_necessaires: unitesNecessaires,
+      ca_genere: caGenere,
+    };
+  });
+
+  const chiffreAffairesMinimum = formatsAnalyse.reduce((sum, f) => sum + f.ca_genere, 0);
+
+  return {
+    charges_fixes_mensuelles: chargesFixesMensuelles,
+    marge_contribution_moyenne: margeContributionMoyenne,
+    unites_a_vendre: unitesAVendre,
+    chiffre_affaires_minimum: chiffreAffairesMinimum,
+    formats_analyse: formatsAnalyse,
+  };
+}
+
+// ============================================
+// 14. KPI DASHBOARD
+// ============================================
+
+/**
+ * Calcule tous les KPIs pour le tableau de bord
+ */
+export function calculerKPIDashboard(
+  formats: FormatVente[],
+  ingredients: Ingredient[],
+  achats: AchatIngredient[]
+): KPIDashboard {
+  // Rentabilité
+  const marges = formats.map(f => f.marge_reelle_pourcentage);
+  const margeBruteMoyenne = marges.length > 0
+    ? marges.reduce((a, b) => a + b, 0) / marges.length
+    : 0;
+
+  // ROI simplifié (profit total / coûts totaux)
+  const profitTotal = formats.reduce((sum, f) => sum + f.profit_unitaire, 0);
+  const coutsTotal = formats.reduce((sum, f) => sum + f.cout_total_revient, 0);
+  const roi = coutsTotal > 0 ? (profitTotal / coutsTotal) * 100 : 0;
+
+  // Stocks
+  const valeurStockTotal = ingredients.reduce((total, ing) => {
+    if (ing.quantite_stock !== undefined) {
+      return total + (ing.quantite_stock * ing.prix_par_unite);
+    }
+    return total;
+  }, 0);
+
+  const ingredientsEnAlerte = ingredients.filter(
+    i => i.quantite_stock !== undefined &&
+         i.stock_minimum !== undefined &&
+         i.quantite_stock <= i.stock_minimum
+  ).length;
+
+  // Fournisseurs
+  const fournisseurs = [...new Set(achats.map(a => a.fournisseur))];
+  const statsParFournisseur = fournisseurs.map(f =>
+    calculerStatistiquesFournisseur(achats, f)
+  );
+  const fournisseurPrincipal = statsParFournisseur.length > 0
+    ? statsParFournisseur.sort((a, b) => b.montant_total - a.montant_total)[0].fournisseur
+    : "Aucun";
+
+  // Production
+  const couts = formats.map(f => f.cout_total_revient / f.quantite_cookies);
+  const coutMoyenParCookie = couts.length > 0
+    ? couts.reduce((a, b) => a + b, 0) / couts.length
+    : 0;
+
+  const formatPlusRentable = formats.length > 0
+    ? [...formats].sort((a, b) => b.profit_unitaire - a.profit_unitaire)[0].nom
+    : "Aucun";
+
+  return {
+    marge_brute_moyenne: arrondir(margeBruteMoyenne),
+    marge_nette_moyenne: arrondir(margeBruteMoyenne * 0.8), // Estimation
+    roi: arrondir(roi),
+    valeur_stock_total: valeurStockTotal,
+    rotation_stock_jours: 30, // À implémenter avec historique
+    ingredients_en_alerte: ingredientsEnAlerte,
+    nombre_fournisseurs: fournisseurs.length,
+    fournisseur_principal: fournisseurPrincipal,
+    economie_potentielle: 0, // À calculer avec comparaison fournisseurs
+    cout_moyen_par_cookie: coutMoyenParCookie,
+    recette_plus_rentable: formatPlusRentable,
+    format_plus_rentable: formatPlusRentable,
+  };
+}
+
+// ============================================
+// 15. SUPPLIER COMPARISON ANALYSIS
+// ============================================
+
+/**
+ * Compare les fournisseurs pour chaque ingrédient
+ */
+export function comparerFournisseursPourIngredients(
+  ingredients: Ingredient[],
+  achats: AchatIngredient[]
+): ComparaisonFournisseur[] {
+  const comparaisons: ComparaisonFournisseur[] = [];
+
+  ingredients.forEach(ingredient => {
+    const achatsIngredient = achats.filter(a => a.ingredient_id === ingredient.id);
+    
+    if (achatsIngredient.length === 0) return;
+
+    // Grouper par fournisseur
+    const parFournisseur = new Map<string, AchatIngredient[]>();
+    achatsIngredient.forEach(achat => {
+      if (!parFournisseur.has(achat.fournisseur)) {
+        parFournisseur.set(achat.fournisseur, []);
+      }
+      parFournisseur.get(achat.fournisseur)!.push(achat);
+    });
+
+    // Analyser chaque fournisseur
+    const fournisseursAnalyse = Array.from(parFournisseur.entries()).map(([nom, achats]) => {
+      const prixMoyen = achats.reduce((sum, a) => sum + a.prix_unitaire, 0) / achats.length;
+      const dernierAchat = achats.sort((a, b) => 
+        new Date(b.date_achat).getTime() - new Date(a.date_achat).getTime()
+      )[0].date_achat;
+
+      // Score de fiabilité basé sur nombre d'achats et régularité
+      const fiabiliteScore = Math.min(100, (achats.length * 20) + 20);
+
+      return {
+        nom,
+        prix_unitaire_moyen: prixMoyen,
+        nombre_achats: achats.length,
+        dernier_achat: dernierAchat,
+        fiabilite_score: fiabiliteScore,
+      };
+    });
+
+    // Trouver le meilleur fournisseur (prix le plus bas avec fiabilité > 40)
+    const fournisseursFiables = fournisseursAnalyse.filter(f => f.fiabilite_score >= 40);
+    const meilleurFournisseur = fournisseursFiables.length > 0
+      ? fournisseursFiables.sort((a, b) => a.prix_unitaire_moyen - b.prix_unitaire_moyen)[0].nom
+      : fournisseursAnalyse[0]?.nom || "Aucun";
+
+    // Calculer économie potentielle
+    const prixMin = Math.min(...fournisseursAnalyse.map(f => f.prix_unitaire_moyen));
+    const prixActuel = ingredient.prix_par_unite;
+    const economieAnnuelleEstimee = prixActuel > prixMin
+      ? (prixActuel - prixMin) * 1000 // Estimation avec 1000 unités/an
+      : 0;
+
+    comparaisons.push({
+      ingredient_id: ingredient.id,
+      ingredient_nom: ingredient.nom,
+      fournisseurs: fournisseursAnalyse,
+      meilleur_fournisseur: meilleurFournisseur,
+      economie_annuelle_estimee: economieAnnuelleEstimee,
+    });
+  });
+
+  return comparaisons.sort((a, b) => b.economie_annuelle_estimee - a.economie_annuelle_estimee);
 }
