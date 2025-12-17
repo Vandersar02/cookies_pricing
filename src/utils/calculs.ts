@@ -41,6 +41,11 @@ export function convertirEnGrammes(quantite: number, unite: string): number {
     'mL': 1,
     'unité': 1,
     'paquet': 1,
+    'pièce': 1,
+    'boîte': 1,
+    'sachet': 1,
+    'cuillère': 15, // approximation pour cuillère à soupe
+    'tasse': 240, // approximation pour tasse (240g)
   };
   
   return quantite * (conversions[unite] || 1);

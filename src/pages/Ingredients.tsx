@@ -95,7 +95,7 @@ export default function Ingredients() {
   // Combiner les catégories de base avec les catégories personnalisées
   const toutesCategories = [...categoriesDeBase, ...categoriesPersonnalisees];
 
-  const unitesOptions: UniteAchat[] = ["kg", "g", "L", "mL", "unité", "paquet"];
+  const unitesOptions: UniteAchat[] = ["kg", "g", "L", "mL", "unité", "paquet", "pièce", "boîte", "sachet", "cuillère", "tasse"];
 
   const handleAjouterCategorie = () => {
     if (nouvelleCategorie.trim()) {

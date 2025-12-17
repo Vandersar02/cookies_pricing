@@ -485,6 +485,12 @@ export default function Recettes() {
                                 <option value="L">L</option>
                                 <option value="mL">mL</option>
                                 <option value="unité">unité</option>
+                                <option value="paquet">paquet</option>
+                                <option value="pièce">pièce</option>
+                                <option value="boîte">boîte</option>
+                                <option value="sachet">sachet</option>
+                                <option value="cuillère">cuillère</option>
+                                <option value="tasse">tasse</option>
                               </select>
                             </div>
                             <div className="col-span-1">
