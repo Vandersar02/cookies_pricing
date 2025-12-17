@@ -158,8 +158,8 @@ export const useStore = create<AppState>()(
       pageActive: "dashboard",
 
       // ============ ACTIONS CATÉGORIES ============
-      ajouterCategoriePersonnalisee: (categorie) => {
-        set((state) => {
+      ajouterCategoriePersonnalisee: (categorie: string) => {
+        set((state: AppState) => {
           const categorieNormalisee = categorie.toLowerCase().trim();
           // Vérifier si la catégorie n'existe pas déjà
           if (state.categoriesPersonnalisees.includes(categorieNormalisee)) {
@@ -171,16 +171,16 @@ export const useStore = create<AppState>()(
         });
       },
 
-      supprimerCategoriePersonnalisee: (categorie) => {
-        set((state) => ({
+      supprimerCategoriePersonnalisee: (categorie: string) => {
+        set((state: AppState) => ({
           categoriesPersonnalisees: state.categoriesPersonnalisees.filter(
-            (cat) => cat !== categorie
+            (cat: string) => cat !== categorie
           ),
         }));
       },
 
       // ============ ACTIONS INGRÉDIENTS ============
-      ajouterIngredient: (ingredient) => {
+      ajouterIngredient: (ingredient: Omit<Ingredient, | "id" | "date_creation" | "derniere_modification" | "prix_par_unite" | "actif">) => {
         const nouvelIngredient: Ingredient = {
           ...ingredient,
           id: genererID(),
@@ -205,7 +205,7 @@ export const useStore = create<AppState>()(
           derniere_modification: new Date(),
         };
 
-        set((state) => ({
+        set((state: AppState) => ({
           ingredients: [...state.ingredients, nouvelIngredient],
         }));
 
@@ -213,9 +213,9 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      modifierIngredient: (id, modifications) => {
-        set((state) => ({
-          ingredients: state.ingredients.map((ing) => {
+      modifierIngredient: (id: string, modifications: Partial<Ingredient>) => {
+        set((state: AppState) => ({
+          ingredients: state.ingredients.map((ing: Ingredient) => {
             if (ing.id !== id) return ing;
 
             const modifie = {
@@ -234,14 +234,14 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      supprimerIngredient: (id) => {
-        set((state) => ({
-          ingredients: state.ingredients.filter((ing) => ing.id !== id),
+      supprimerIngredient: (id: string) => {
+        set((state: AppState) => ({
+          ingredients: state.ingredients.filter((ing: Ingredient) => ing.id !== id),
         }));
       },
 
       // ============ ACTIONS RECETTES ============
-      ajouterRecette: (recette) => {
+      ajouterRecette: (recette: Omit<Recette, | "id" | "date_creation" | "derniere_modification" | "cout_total_ingredients" | "cout_par_cookie_ingredients" | "actif">) => {
         const ingredients = get().ingredients;
         const recetteComplete = calculerRecetteComplete(
           {
@@ -256,16 +256,16 @@ export const useStore = create<AppState>()(
           ingredients
         );
 
-        set((state) => ({
+        set((state: AppState) => ({
           recettes: [...state.recettes, recetteComplete],
         }));
       },
 
-      modifierRecette: (id, modifications) => {
+      modifierRecette: (id: string, modifications: Partial<Recette>) => {
         const ingredients = get().ingredients;
 
-        set((state) => ({
-          recettes: state.recettes.map((rec) => {
+        set((state: AppState) => ({
+          recettes: state.recettes.map((rec: Recette) => {
             if (rec.id !== id) return rec;
 
             const modifie = {
@@ -280,17 +280,17 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      supprimerRecette: (id) => {
-        set((state) => ({
-          recettes: state.recettes.filter((rec) => rec.id !== id),
+      supprimerRecette: (id: string) => {
+        set((state: AppState) => ({
+          recettes: state.recettes.filter((rec: Recette) => rec.id !== id),
         }));
       },
 
-      recalculerRecette: (id) => {
+      recalculerRecette: (id: string) => {
         const ingredients = get().ingredients;
 
-        set((state) => ({
-          recettes: state.recettes.map((rec) => {
+        set((state: AppState) => ({
+          recettes: state.recettes.map((rec: Recette) => {
             if (rec.id !== id) return rec;
             return calculerRecetteComplete(rec, ingredients);
           }),
@@ -298,7 +298,7 @@ export const useStore = create<AppState>()(
       },
 
       // ============ ACTIONS EMBALLAGES ============
-      ajouterEmballage: (emballage) => {
+      ajouterEmballage: (emballage: Omit<Emballage, "id" | "date_creation" | "cout_par_cookie" | "actif">) => {
         const nouvelEmballage: Emballage = {
           ...emballage,
           id: genererID(),
@@ -313,14 +313,14 @@ export const useStore = create<AppState>()(
           date_creation: new Date(),
         };
 
-        set((state) => ({
+        set((state: AppState) => ({
           emballages: [...state.emballages, nouvelEmballage],
         }));
       },
 
-      modifierEmballage: (id, modifications) => {
-        set((state) => ({
-          emballages: state.emballages.map((emb) => {
+      modifierEmballage: (id: string, modifications: Partial<Emballage>) => {
+        set((state: AppState) => ({
+          emballages: state.emballages.map((emb: Emballage) => {
             if (emb.id !== id) return emb;
 
             const modifie = { ...emb, ...modifications };
@@ -334,14 +334,14 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      supprimerEmballage: (id) => {
-        set((state) => ({
-          emballages: state.emballages.filter((emb) => emb.id !== id),
+      supprimerEmballage: (id: string) => {
+        set((state: AppState) => ({
+          emballages: state.emballages.filter((emb: Emballage) => emb.id !== id),
         }));
       },
 
       // ============ ACTIONS CHARGES ============
-      ajouterCharges: (charges) => {
+      ajouterCharges: (charges: Omit<ChargesGlobales, "id" | "date_creation" | "total_charges" | "charge_par_cookie" | "actif">) => {
         const nouvellesCharges: ChargesGlobales = {
           ...charges,
           id: genererID(),
@@ -358,16 +358,16 @@ export const useStore = create<AppState>()(
           date_creation: new Date(),
         };
 
-        set((state) => ({
+        set((state: AppState) => ({
           charges: [...state.charges, nouvellesCharges],
         }));
 
         get().recalculerTousFormatsVente();
       },
 
-      modifierCharges: (id, modifications) => {
-        set((state) => ({
-          charges: state.charges.map((ch) => {
+      modifierCharges: (id: string, modifications: Partial<ChargesGlobales>) => {
+        set((state: AppState) => ({
+          charges: state.charges.map((ch: ChargesGlobales) => {
             if (ch.id !== id) return ch;
 
             const modifie = { ...ch, ...modifications };
@@ -381,14 +381,14 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      supprimerCharges: (id) => {
-        set((state) => ({
-          charges: state.charges.filter((ch) => ch.id !== id),
+      supprimerCharges: (id: string) => {
+        set((state: AppState) => ({
+          charges: state.charges.filter((ch: ChargesGlobales) => ch.id !== id),
         }));
       },
 
       // ============ ACTIONS PERTES ============
-      ajouterPerte: (perte) => {
+      ajouterPerte: (perte: Omit<Perte, "id" | "date_creation" | "actif">) => {
         const nouvellePerte: Perte = {
           ...perte,
           id: genererID(),
@@ -396,16 +396,16 @@ export const useStore = create<AppState>()(
           date_creation: new Date(),
         };
 
-        set((state) => ({
+        set((state: AppState) => ({
           pertes: [...state.pertes, nouvellePerte],
         }));
 
         get().recalculerTousFormatsVente();
       },
 
-      modifierPerte: (id, modifications) => {
-        set((state) => ({
-          pertes: state.pertes.map((p) =>
+      modifierPerte: (id: string, modifications: Partial<Perte>) => {
+        set((state: AppState) => ({
+          pertes: state.pertes.map((p: Perte) =>
             p.id === id ? { ...p, ...modifications } : p
           ),
         }));
@@ -413,18 +413,18 @@ export const useStore = create<AppState>()(
         get().recalculerTousFormatsVente();
       },
 
-      supprimerPerte: (id) => {
-        set((state) => ({
-          pertes: state.pertes.filter((p) => p.id !== id),
+      supprimerPerte: (id: string) => {
+        set((state: AppState) => ({
+          pertes: state.pertes.filter((p: Perte) => p.id !== id),
         }));
       },
 
       // ============ ACTIONS FORMATS VENTE ============
-      ajouterFormatVente: (format) => {
+      ajouterFormatVente: (format: Omit<FormatVente, | "id" | "date_creation" | "cout_cookies" | "cout_emballage" | "cout_charges" | "cout_pertes" | "cout_total_revient" | "prix_vente_recommande" | "profit_unitaire" | "marge_reelle_pourcentage" | "actif">) => {
         const { recettes, emballages, charges, pertes } = get();
 
-        const recette = recettes.find((r) => r.id === format.type_cookie_id);
-        const emballage = emballages.find((e) => e.id === format.emballage_id);
+        const recette = recettes.find((r: Recette) => r.id === format.type_cookie_id);
+        const emballage = emballages.find((e: Emballage) => e.id === format.emballage_id);
 
         if (!recette || !emballage) {
           console.error("Recette ou emballage introuvable");
@@ -452,14 +452,14 @@ export const useStore = create<AppState>()(
           pertes
         );
 
-        set((state) => ({
+        set((state: AppState) => ({
           formatsVente: [...state.formatsVente, formatComplet],
         }));
       },
 
-      modifierFormatVente: (id, modifications) => {
-        set((state) => ({
-          formatsVente: state.formatsVente.map((f) =>
+      modifierFormatVente: (id: string, modifications: Partial<FormatVente>) => {
+        set((state: AppState) => ({
+          formatsVente: state.formatsVente.map((f: FormatVente) =>
             f.id === id ? { ...f, ...modifications } : f
           ),
         }));
@@ -467,20 +467,20 @@ export const useStore = create<AppState>()(
         get().recalculerFormatVente(id);
       },
 
-      supprimerFormatVente: (id) => {
-        set((state) => ({
-          formatsVente: state.formatsVente.filter((f) => f.id !== id),
+      supprimerFormatVente: (id: string) => {
+        set((state: AppState) => ({
+          formatsVente: state.formatsVente.filter((f: FormatVente) => f.id !== id),
         }));
       },
 
-      recalculerFormatVente: (id) => {
+      recalculerFormatVente: (id: string) => {
         const { recettes, emballages, charges, pertes, formatsVente } = get();
 
-        const format = formatsVente.find((f) => f.id === id);
+        const format = formatsVente.find((f: FormatVente) => f.id === id);
         if (!format) return;
 
-        const recette = recettes.find((r) => r.id === format.type_cookie_id);
-        const emballage = emballages.find((e) => e.id === format.emballage_id);
+        const recette = recettes.find((r: Recette) => r.id === format.type_cookie_id);
+        const emballage = emballages.find((e: Emballage) => e.id === format.emballage_id);
 
         if (!recette || !emballage) return;
 
@@ -492,8 +492,8 @@ export const useStore = create<AppState>()(
           pertes
         );
 
-        set((state) => ({
-          formatsVente: state.formatsVente.map((f) =>
+        set((state: AppState) => ({
+          formatsVente: state.formatsVente.map((f: FormatVente) =>
             f.id === id ? formatRecalcule : f
           ),
         }));
@@ -501,12 +501,12 @@ export const useStore = create<AppState>()(
 
       recalculerTousFormatsVente: () => {
         const { formatsVente } = get();
-        formatsVente.forEach((f) => get().recalculerFormatVente(f.id));
+        formatsVente.forEach((f: FormatVente) => get().recalculerFormatVente(f.id));
       },
 
       // ============ ACTIONS SIMULATIONS ============
-      ajouterSimulation: (simulation) => {
-        set((state) => ({
+      ajouterSimulation: (simulation: Omit<Simulation, "id">) => {
+        set((state: AppState) => ({
           simulations: [
             ...state.simulations,
             { ...simulation, id: genererID() },
@@ -514,9 +514,9 @@ export const useStore = create<AppState>()(
         }));
       },
 
-      supprimerSimulation: (id) => {
-        set((state) => ({
-          simulations: state.simulations.filter((s) => s.id !== id),
+      supprimerSimulation: (id: string) => {
+        set((state: AppState) => ({
+          simulations: state.simulations.filter((s: Simulation) => s.id !== id),
         }));
       },
 
@@ -525,7 +525,7 @@ export const useStore = create<AppState>()(
         const { formatsVente } = get();
         const alertes: AlerteRentabilite[] = [];
 
-        formatsVente.forEach((format) => {
+        formatsVente.forEach((format: FormatVente) => {
           // Alerte marge faible
           if (format.marge_reelle_pourcentage < 30) {
             alertes.push({
@@ -560,7 +560,7 @@ export const useStore = create<AppState>()(
       },
 
       // ============ UI ============
-      changerPage: (page) => {
+      changerPage: (page: string) => {
         set({ pageActive: page });
       },
 
@@ -643,7 +643,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "cookie-pricing-storage", // Nom de la clé dans localStorage
-      partialize: (state) => ({
+      partialize: (state: AppState) => ({
         // On sauvegarde tout sauf la page active
         ingredients: state.ingredients,
         recettes: state.recettes,
