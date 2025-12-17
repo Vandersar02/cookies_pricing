@@ -19,6 +19,20 @@ export type CategorieIngredient =
   | "autre"
   | string; // Permet les catégories personnalisées
 
+// Historique d'achat d'un ingrédient
+export interface AchatIngredient {
+  id: string;
+  ingredient_id: string;
+  ingredient_nom: string; // denormalisé pour affichage
+  fournisseur: string;
+  quantite: number;
+  unite: UniteAchat;
+  prix_total: number;
+  prix_unitaire: number; // calculé
+  date_achat: Date;
+  notes?: string;
+}
+
 export interface Ingredient {
   id: string;
   nom: string;
@@ -350,6 +364,7 @@ export interface AppState {
   pertes: Perte[];
   formats_vente: FormatVente[];
   simulations: Simulation[];
+  achats: AchatIngredient[]; // Historique des achats
 
   // UI State
   page_active: string;
@@ -379,4 +394,39 @@ export interface CalculPricing {
   profit: number;
   marge_reelle: number;
   rentable: boolean;
+}
+
+// ============================================
+// 12. ANALYTICS ACHATS & FOURNISSEURS
+// ============================================
+
+export type PeriodeAnalyse = "hebdomadaire" | "mensuelle" | "trimestrielle" | "annuelle";
+
+export interface StatistiquesFournisseur {
+  fournisseur: string;
+  nombre_achats: number;
+  montant_total: number;
+  montant_moyen: number;
+  dernier_achat?: Date;
+  premier_achat?: Date;
+  ingredients: string[]; // Liste des ingrédients achetés
+  frequence_jours?: number; // Fréquence moyenne en jours entre achats
+}
+
+export interface DepensesPeriode {
+  periode: string; // ex: "2024-W01", "2024-01", "2024-Q1", "2024"
+  montant: number;
+  nombre_achats: number;
+  fournisseurs: string[];
+}
+
+export interface RecommandationReapprovisionnement {
+  ingredient_id: string;
+  ingredient_nom: string;
+  stock_actuel: number;
+  stock_minimum: number;
+  fournisseur_habituel?: string;
+  prix_moyen: number;
+  jours_avant_rupture?: number;
+  urgence: "faible" | "moyenne" | "haute" | "critique";
 }

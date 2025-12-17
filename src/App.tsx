@@ -19,6 +19,7 @@ import Charges from "@/pages/Charges";
 import FormatsVente from "@/pages/FormatsVente";
 import Analyses from "@/pages/Analyses";
 import Stocks from "@/pages/Stocks";
+import Achats from "@/pages/Achats";
 
 function App() {
   const { pageActive, changerPage, alertes } = useStore();
@@ -30,6 +31,7 @@ function App() {
     { id: "recettes", nom: "Recettes", icon: Cookie },
     { id: "emballages", nom: "Emballages", icon: Package },
     { id: "stocks", nom: "Stocks", icon: Warehouse },
+    { id: "achats", nom: "Achats", icon: ShoppingCart },
     { id: "charges", nom: "Charges & Pertes", icon: DollarSign },
     { id: "formats", nom: "Formats de Vente", icon: ShoppingCart },
     { id: "analyses", nom: "Analyses", icon: TrendingUp },
@@ -47,6 +49,8 @@ function App() {
         return <Emballages />;
       case "stocks":
         return <Stocks />;
+      case "achats":
+        return <Achats />;
       case "charges":
         return <Charges />;
       case "formats":

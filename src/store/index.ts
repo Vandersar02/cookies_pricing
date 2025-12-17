@@ -15,6 +15,7 @@ import type {
   FormatVente,
   Simulation,
   AlerteRentabilite,
+  AchatIngredient,
 } from "@/types";
 
 import {
@@ -39,6 +40,7 @@ interface AppState {
   simulations: Simulation[];
   alertes: AlerteRentabilite[];
   categoriesPersonnalisees: string[]; // Catégories personnalisées ajoutées par l'utilisateur
+  achats: AchatIngredient[]; // Historique des achats
 
   // ============ UI ============
   pageActive: string;
@@ -134,6 +136,12 @@ interface AppState {
   ajouterSimulation: (simulation: Omit<Simulation, "id">) => void;
   supprimerSimulation: (id: string) => void;
 
+  // ============ ACTIONS ACHATS ============
+  ajouterAchat: (achat: Omit<AchatIngredient, "id" | "prix_unitaire">) => void;
+  supprimerAchat: (id: string) => void;
+  getAchatsByFournisseur: (fournisseur: string) => AchatIngredient[];
+  getAchatsByIngredient: (ingredient_id: string) => AchatIngredient[];
+
   // ============ ACTIONS ALERTES ============
   genererAlertes: () => void;
 
@@ -155,6 +163,7 @@ export const useStore = create<AppState>()(
       simulations: [],
       alertes: [],
       categoriesPersonnalisees: [],
+      achats: [],
       pageActive: "dashboard",
 
       // ============ ACTIONS CATÉGORIES ============
@@ -520,6 +529,33 @@ export const useStore = create<AppState>()(
         }));
       },
 
+      // ============ ACTIONS ACHATS ============
+      ajouterAchat: (achat: Omit<AchatIngredient, "id" | "prix_unitaire">) => {
+        const nouvelAchat: AchatIngredient = {
+          ...achat,
+          id: genererID(),
+          prix_unitaire: achat.prix_total / achat.quantite,
+        };
+
+        set((state: AppState) => ({
+          achats: [...state.achats, nouvelAchat],
+        }));
+      },
+
+      supprimerAchat: (id: string) => {
+        set((state: AppState) => ({
+          achats: state.achats.filter((a: AchatIngredient) => a.id !== id),
+        }));
+      },
+
+      getAchatsByFournisseur: (fournisseur: string) => {
+        return get().achats.filter((a: AchatIngredient) => a.fournisseur === fournisseur);
+      },
+
+      getAchatsByIngredient: (ingredient_id: string) => {
+        return get().achats.filter((a: AchatIngredient) => a.ingredient_id === ingredient_id);
+      },
+
       // ============ ACTIONS ALERTES ============
       genererAlertes: () => {
         const { formatsVente } = get();
@@ -654,6 +690,8 @@ export const useStore = create<AppState>()(
         formatsVente: state.formatsVente,
         simulations: state.simulations,
         alertes: state.alertes,
+        achats: state.achats,
+        categoriesPersonnalisees: state.categoriesPersonnalisees,
       }),
     }
   )
