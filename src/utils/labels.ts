@@ -261,10 +261,11 @@ export async function genererLotEtiquettes(
       { align: 'center', maxWidth: config.largeur_mm - 4 }
     );
 
-    if (listeEtiquettes[i].prix_vente) {
+    const prixVente = listeEtiquettes[i].prix_vente;
+    if (prixVente !== undefined) {
       pdf.setFontSize(12);
       pdf.text(
-        `${listeEtiquettes[i].prix_vente!.toFixed(2)} €`,
+        `${prixVente.toFixed(2)} €`,
         x + config.largeur_mm / 2,
         y + config.hauteur_mm / 2,
         { align: 'center' }
@@ -272,10 +273,11 @@ export async function genererLotEtiquettes(
     }
 
     // Code-barres si demandé
-    if (config.inclure_code_barre && listeEtiquettes[i].code_barre) {
+    const codeBarre = listeEtiquettes[i].code_barre;
+    if (config.inclure_code_barre && codeBarre) {
       try {
         const barcodeImg = await genererCodeBarre(
-          listeEtiquettes[i].code_barre!,
+          codeBarre,
           config.format_code_barre
         );
         const imgHeight = config.hauteur_mm / 3;

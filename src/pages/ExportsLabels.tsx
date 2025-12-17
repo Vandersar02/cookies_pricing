@@ -554,7 +554,7 @@ export default function ExportsLabels() {
                 <option value="">-- Choisir un format --</option>
                 {formats.map((format) => (
                   <option key={format.id} value={format.id}>
-                    {format.nom} - {(format.prix_vente_pratique ?? format.prix_vente_recommande).toFixed(2)} €
+                    {format.nom} - {(format.prix_vente_pratique ?? format.prix_vente_recommande ?? 0).toFixed(2)} €
                   </option>
                 ))}
               </select>
