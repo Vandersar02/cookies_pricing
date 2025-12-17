@@ -84,7 +84,9 @@ Le logiciel supporte maintenant la **synchronisation automatique** de vos donné
 
 Déployez l'application gratuitement sur Vercel pour y accéder depuis n'importe où :
 
-👉 **[Guide de déploiement sur Vercel](./DEPLOIEMENT_VERCEL.md)**
+👉 **[Guide de déploiement sur Vercel](./DEPLOIEMENT_VERCEL.md)** (complet)  
+👉 **[Référence rapide Vercel](./REFERENCE_RAPIDE_VERCEL.md)** (5 minutes)  
+👉 **[Résumé de configuration](./RESUME_CONFIGURATION_VERCEL.md)** (explications)
 
 - ✅ Déploiement gratuit et automatique
 - ✅ HTTPS et CDN global
