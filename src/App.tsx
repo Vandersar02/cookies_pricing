@@ -184,7 +184,7 @@ function App() {
                             changerPage(item.id);
                             setMenuMobileOuvert(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
+                          className={`w-full flex items-center !justify-start gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-target ${
                             pageActive === item.id
                               ? "bg-primary-700 text-primary-100 font-medium"
                               : "text-slate-300 hover:bg-slate-800"
