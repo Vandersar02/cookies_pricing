@@ -160,12 +160,13 @@ export const useStore = create<AppState>()(
       // ============ ACTIONS CATÉGORIES ============
       ajouterCategoriePersonnalisee: (categorie) => {
         set((state) => {
+          const categorieNormalisee = categorie.toLowerCase().trim();
           // Vérifier si la catégorie n'existe pas déjà
-          if (state.categoriesPersonnalisees.includes(categorie.toLowerCase())) {
+          if (state.categoriesPersonnalisees.includes(categorieNormalisee)) {
             return state;
           }
           return {
-            categoriesPersonnalisees: [...state.categoriesPersonnalisees, categorie.toLowerCase()],
+            categoriesPersonnalisees: [...state.categoriesPersonnalisees, categorieNormalisee],
           };
         });
       },
