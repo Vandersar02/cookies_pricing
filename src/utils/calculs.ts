@@ -12,8 +12,14 @@ import type {
   Perte,
   FormatVente,
   CalculCoutCookie,
-  CalculPricing
+  CalculPricing,
+  AchatIngredient, 
+  StatistiquesFournisseur, 
+  DepensesPeriode,
+  PeriodeAnalyse,
+  RecommandationReapprovisionnement
 } from '@/types';
+import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
 // ============================================
 // 1. CONVERSIONS D'UNITÉS
@@ -486,15 +492,6 @@ export function genererID(): string {
 // ============================================
 // 11. ANALYTICS ACHATS & FOURNISSEURS
 // ============================================
-
-import type { 
-  AchatIngredient, 
-  StatistiquesFournisseur, 
-  DepensesPeriode,
-  PeriodeAnalyse,
-  RecommandationReapprovisionnement
-} from '@/types';
-import { startOfWeek, startOfMonth, format, differenceInDays } from 'date-fns';
 
 /**
  * Calcule les statistiques par fournisseur
