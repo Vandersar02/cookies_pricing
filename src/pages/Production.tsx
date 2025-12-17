@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   Package,
 } from "lucide-react";
-import { formaterEuro } from "@/utils/calculs";
+// import { formaterEuro } from "@/utils/calculs";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { ProductionRecord, PlanificationProduction } from "@/types";
@@ -21,13 +21,10 @@ export default function Production() {
     productions,
     planifications,
     recettes,
-    formatsVente,
     ingredients,
     ajouterProduction,
-    modifierProduction,
     terminerProduction,
     ajouterPlanification,
-    modifierPlanification,
     executerPlanification,
     supprimerPlanification,
   } = useStore();
